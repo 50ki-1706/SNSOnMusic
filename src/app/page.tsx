@@ -1,7 +1,7 @@
+import { auth } from '@/auth';
 import SignIn from '@/components/SignIn';
 import SignOut from '@/components/SignOut';
 import Image from 'next/image';
-import { auth } from '../../auth';
 
 const Home = async () => {
   const session = await auth();
@@ -20,7 +20,7 @@ const Home = async () => {
               alt='image of user'
               width={60}
               height={20}
-            ></Image>
+            />
           </div>
         )}
       </div>

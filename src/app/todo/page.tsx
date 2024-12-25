@@ -2,7 +2,7 @@
 
 import useTodoData from '@/hooks/SWR/useTodoData';
 import { useState } from 'react';
-import { useSWRConfig } from 'swr';
+import { mutate } from 'swr';
 
 const addNewTodo = async (newTodo: string) => {
   const response = await fetch('/api/todo', {
@@ -50,7 +50,6 @@ const toggleTodo = async (id: string, completed: boolean) => {
 };
 
 const TodoPage = () => {
-  const { mutate } = useSWRConfig();
   const { todos, isError, isLoading } = useTodoData();
   const [newTodo, setNewTodo] = useState('');
 

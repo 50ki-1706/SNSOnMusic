@@ -4,7 +4,7 @@ import { z, ZodError } from 'zod';
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
-const useUserInfo = () => {
+const useTodoData = () => {
   const { data, error, isLoading, mutate } = useSWR('/api/todo', fetcher);
   const TodosSchema = z.array(TodoSchema);
 
@@ -38,4 +38,4 @@ const useUserInfo = () => {
   };
 };
 
-export default useUserInfo;
+export default useTodoData;
