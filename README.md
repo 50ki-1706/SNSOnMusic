@@ -45,7 +45,6 @@ $ docker-compose up -d
 
 ```bash
 $ npx prisma migrate dev
-$ npx prisma generate
 ```
 
 ### 5.開発サーバーの起動
