@@ -1,16 +1,12 @@
-import { signIn } from '../auth';
+'use client';
+
+import { signIn } from 'next-auth/react';
 
 const SignIn = () => {
   return (
-    <form
-      className='rounded-xl p-3 ring-1 ring-slate-400'
-      action={async () => {
-        'use server';
-        await signIn('google');
-      }}
-    >
-      <button type='submit'>Signin with Google</button>
-    </form>
+    <button className='rounded-xl p-3 ring-1 ring-slate-400' onClick={() => signIn('google')}>
+      Signin with Google
+    </button>
   );
 };
 
