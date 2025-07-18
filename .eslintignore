@@ -1,0 +1,5 @@
+# 全ての .d.ts ファイルを除外
+**/frourio.client.ts
+
+# 全ての .min.js ファイルを除外
+**/frourio.server.ts
