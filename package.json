@@ -8,8 +8,12 @@
     "dev:frourio": "frourio-next --watch",
     "build": "frourio-next && next build",
     "start": "next start",
+    "fix": "run-p *:fix",
     "lint": "next lint",
-    "format": "prettier --write .",
+    "lint:fix": "next lint --fix",
+    "format": "prettier --check .",
+    "format:fix": "prettier --write .",
+    "typecheck": "tsc --noEmit",
     "postinstall": "prisma generate"
   },
   "dependencies": {
