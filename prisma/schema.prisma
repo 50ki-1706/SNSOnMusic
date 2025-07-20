@@ -44,7 +44,7 @@ enum MatchingStatus {
 
 model User {
   id            String          @id @default(cuid())
-  name          String?
+  name          String
   email         String          @unique
   emailVerified DateTime?
   image         String?
@@ -57,7 +57,6 @@ model User {
   age                Int                  @default(0)
   //自己紹介文
   bio                String?
-  EventParticipant   EventParticipant[] // イベントの参加者リスト
   UserFavoriteGenre  UserFavoriteGenre[] // お気に入りジャンル
   UserFavoriteArtist UserFavoriteArtist[] // お気に入りアーティスト
 
@@ -69,6 +68,7 @@ model User {
 
   DMRoomParticipant DMRoomParticipant[]
   Message           Message[]
+  EventParticipant   EventParticipant[] // イベントの参加者リスト
 }
 
 model Account {
