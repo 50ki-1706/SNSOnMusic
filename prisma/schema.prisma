@@ -151,6 +151,7 @@ model Event {
 model EventParticipant {
   eventId String
   userId  String
+  feedback String?
   event   Event  @relation(fields: [eventId], references: [id], onDelete: Cascade)
   user    User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
