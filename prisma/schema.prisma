@@ -38,7 +38,7 @@ enum MusicGenre {
 
 enum MatchingStatus {
   PENDING
-  MATCHED
+  LIKED
   REJECTED
 }
 
