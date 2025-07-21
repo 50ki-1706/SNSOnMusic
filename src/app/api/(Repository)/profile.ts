@@ -1,5 +1,4 @@
 import { prisma } from '@/lib/prisma';
-import { Gender } from '@prisma/client';
 import { UserProfile, UserProfileUpdate } from '../(type)/profile';
 
 // プロフィール取得
@@ -47,7 +46,7 @@ export const updateProfile = async (profile: UserProfileUpdate, userId: string) 
   await prisma.user.update({
     where: { id: userId },
     data: {
-      gender: profile.gender ? Gender[profile.gender as keyof typeof Gender] : undefined,
+      gender: profile.gender,
       age: profile.age,
       bio: profile.bio,
     },
@@ -64,6 +63,7 @@ export const updateProfile = async (profile: UserProfileUpdate, userId: string) 
 
   // お気に入りアーティストの更新
   if (profile.userFavoriteArtist) {
+    // 既存削除→新規作成
     await prisma.userFavoriteArtist.deleteMany({ where: { userId } });
     await prisma.userFavoriteArtist.createMany({
       data: profile.userFavoriteArtist.map((artist) => ({ userId, artist })),

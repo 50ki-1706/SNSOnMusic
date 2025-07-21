@@ -1,4 +1,4 @@
-import { MusicGenre } from '@prisma/client';
+import { Gender, MusicGenre } from '@prisma/client';
 import { z } from 'zod';
 
 export const UserFavoriteGenreSchema = z.array(z.nativeEnum(MusicGenre));
@@ -14,7 +14,7 @@ export const UserProfileSchema = z.object({
   id: z.string(),
   name: z.string(),
   email: z.string(),
-  gender: z.string(),
+  gender: z.nativeEnum(Gender),
   age: z.number(),
   bio: z.string().nullable(),
   userFavoriteGenre: UserFavoriteGenreSchema,
@@ -23,7 +23,7 @@ export const UserProfileSchema = z.object({
 });
 
 export const UserProfileUpdateSchema = z.object({
-  gender: z.string().optional(),
+  gender: z.nativeEnum(Gender).optional(),
   age: z.number().min(0).optional(),
   bio: z.string().nullable().optional(),
   userFavoriteGenre: UserFavoriteGenreSchema.optional(),
