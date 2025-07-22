@@ -1,4 +1,4 @@
-import { ReciveList } from '@/app/api/(type)/matching';
+import { ReciveList, SendList } from '@/app/api/(type)/matching';
 import { prisma } from '@/lib/prisma';
 
 export const like = async (senderId: string, receiverId: string) => {
@@ -41,4 +41,25 @@ export const reject = async (senderId: string, receiverId: string) => {
       matchingStatus: 'REJECTED',
     },
   });
+};
+
+export const getSendList = async (senderId: string): Promise<SendList> => {
+  const matchings = await prisma.matching.findMany({
+    where: {
+      senderId: senderId,
+    },
+    select: {
+      matchingStatus: true,
+      receiver: {
+        select: {
+          id: true,
+          name: true,
+          gender: true,
+          age: true,
+        },
+      },
+    },
+  });
+
+  return matchings;
 };

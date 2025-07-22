@@ -15,4 +15,17 @@ export const reciveList = z.array(
   }),
 );
 
+export const sendListSchema = z.array(
+  z.object({
+    receiver: z.object({
+      id: z.string(),
+      name: z.string(),
+      gender: z.nativeEnum(Gender),
+      age: z.number(),
+    }),
+    matchingStatus: z.nativeEnum(MatchingStatus),
+  }),
+);
+
 export type ReciveList = z.infer<typeof reciveList>;
+export type SendList = z.infer<typeof sendListSchema>;
