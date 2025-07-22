@@ -130,8 +130,6 @@ model Event {
   id               String             @id @default(cuid())
   title            String             @unique
   description      String
-  capacity         Int? // 募集人数（nullable）
-  participants     Int // 参加人数
   status           EventStatus        @default(OPEN)
   organizerId      String // イベントの主催者
   organizer        User               @relation(fields: [organizerId], references: [id], onDelete: Cascade)
@@ -151,7 +149,7 @@ model Event {
 model EventParticipant {
   eventId String
   userId  String
-  feedback String?
+  feedback String? //stringならfeedbackを更新、nullならfeedbackを削除を表すように実装されている
   event   Event  @relation(fields: [eventId], references: [id], onDelete: Cascade)
   user    User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
