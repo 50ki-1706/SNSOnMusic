@@ -43,6 +43,54 @@ export const eventSchema = z.object({
   ),
 });
 
+export const EventPostReqSchema = z.object({
+  title: z.string(),
+  description: z.string(),
+  ticketCount: z.number().nullable(),
+  location: z.string(),
+  externalUrl: z.string().nullable(),
+  eventDate: z.string().datetime(),
+  genre: z.nativeEnum(MusicGenre),
+  fee: z.number().nullable(),
+  deadline: z.string().datetime().nullable(),
+});
+
+export const EventPostResSchema = z.object({
+  id: z.string(),
+  title: z.string(),
+  description: z.string(),
+  status: z.nativeEnum(EventStatus),
+  organizer: z.object({
+    id: z.string(),
+    name: z.string(),
+  }),
+  ticketCount: z.number().nullable(),
+  location: z.string(),
+  externalUrl: z.string().nullable(),
+  eventDate: z.string().datetime(),
+  genre: z.nativeEnum(MusicGenre),
+  fee: z.number().nullable(),
+  deadline: z.string().datetime().nullable(),
+});
+
+export const EventPatchReqSchema = z.object({
+  id: z.string(),
+  title: z.string(),
+  description: z.string(),
+  status: z.nativeEnum(EventStatus),
+  ticketCount: z.number().nullable(),
+  location: z.string(),
+  externalUrl: z.string().nullable(),
+  eventDate: z.string().datetime(),
+  genre: z.nativeEnum(MusicGenre),
+  fee: z.number().nullable(),
+  deadline: z.string().datetime().nullable(),
+});
+
+export type EventPostReq = z.infer<typeof EventPostReqSchema>;
+export type EventPostRes = z.infer<typeof EventPostResSchema>;
+export type EventPatchReq = z.infer<typeof EventPatchReqSchema>;
+
 //テーブル構造的に、stringならfeedbackを更新、nullならfeedbackを削除を表す
 export const feedbackSchemaAtUpdate = z.string().nullable();
 //join時はfeedbackは無いため、nullのみを許可

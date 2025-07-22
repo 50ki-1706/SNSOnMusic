@@ -1,5 +1,14 @@
 import { prisma } from '@/lib/prisma';
-import { Event, EventDate, EventList, FeedbackAtJoin, FeedbackAtUpdate } from '../(type)/event';
+import {
+  Event,
+  EventDate,
+  EventList,
+  EventPatchReq,
+  EventPostReq,
+  EventPostRes,
+  FeedbackAtJoin,
+  FeedbackAtUpdate,
+} from '../(type)/event';
 
 export const getEvents = async (date: EventDate): Promise<EventList> => {
   const where = date ? { eventDate: { gte: new Date(date) } } : {};
@@ -124,5 +133,49 @@ export const findEvent = async (id: string) => {
 export const deleteEvent = async (id: string) => {
   await prisma.event.delete({
     where: { id },
+  });
+};
+
+export const createEvent = async (
+  body: EventPostReq,
+  organizerId: string,
+): Promise<EventPostRes> => {
+  const event = await prisma.event.create({
+    data: {
+      ...body,
+      organizerId,
+      eventDate: new Date(body.eventDate),
+      deadline: body.deadline ? new Date(body.deadline) : null,
+    },
+    include: {
+      organizer: {
+        select: {
+          id: true,
+          name: true,
+        },
+      },
+    },
+  });
+
+  // Date型をISO文字列に変換
+  const response = {
+    ...event,
+    eventDate: event.eventDate.toISOString(),
+    deadline: event.deadline?.toISOString() ?? null,
+  };
+
+  return response;
+};
+
+export const updateEvent = async (event: EventPatchReq) => {
+  const { id, ...updateData } = event;
+
+  await prisma.event.update({
+    where: { id: event.id },
+    data: {
+      ...updateData,
+      eventDate: new Date(updateData.eventDate),
+      deadline: updateData.deadline ? new Date(updateData.deadline) : null,
+    },
   });
 };
