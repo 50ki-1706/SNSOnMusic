@@ -11,8 +11,6 @@ export const eventListSchema = z.array(
       id: z.string(),
       name: z.string(),
     }),
-    capacity: z.number().nullable(), // Prisma schemaでInt?なのでnullable
-    participants: z.number(),
     eventDate: z.string().datetime(),
     deadline: z.string().datetime().nullable(), // Prisma schemaでDateTime?なのでnullable
   }),

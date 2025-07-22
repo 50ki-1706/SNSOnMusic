@@ -17,8 +17,6 @@ export const getEvents = async (date: EventDate): Promise<EventList> => {
           name: true,
         },
       },
-      capacity: true,
-      participants: true,
       eventDate: true,
       deadline: true,
     },
