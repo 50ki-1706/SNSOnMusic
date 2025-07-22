@@ -1,4 +1,4 @@
-import { getEvents } from '../(Repository)/event';
+import { getEvents } from '../../(Repository)/event';
 import { createRoute } from './frourio.server';
 
 export const { GET } = createRoute({
