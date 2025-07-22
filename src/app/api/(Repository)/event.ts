@@ -60,3 +60,9 @@ export const joinEvent = async (userId: string, eventId: string, feedback: Feedb
     },
   });
 };
+
+export const cancelEvent = async (id: string, userId: string) => {
+  await prisma.eventParticipant.delete({
+    where: { eventId_userId: { eventId: id, userId } },
+  });
+};
