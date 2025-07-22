@@ -28,3 +28,17 @@ export const getReceiveMatchingList = async (receiverId: string): Promise<Recive
 
   return matchings;
 };
+
+export const reject = async (senderId: string, receiverId: string) => {
+  await prisma.matching.update({
+    where: {
+      senderId_receiverId: {
+        senderId: senderId,
+        receiverId: receiverId,
+      },
+    },
+    data: {
+      matchingStatus: 'REJECTED',
+    },
+  });
+};
