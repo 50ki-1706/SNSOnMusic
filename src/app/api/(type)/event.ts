@@ -18,8 +18,12 @@ export const eventListSchema = z.array(
   }),
 );
 
+export const feedbackSchema = z.string().nullable();
+
 export const eventDateSchema = z.string().datetime().optional();
 
 export type EventDate = z.infer<typeof eventDateSchema>;
 
 export type EventList = z.infer<typeof eventListSchema>;
+
+export type Feedback = z.infer<typeof feedbackSchema>;

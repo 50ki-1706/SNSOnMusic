@@ -1,5 +1,5 @@
 import { prisma } from '@/lib/prisma';
-import { EventDate, EventList } from '../(type)/event';
+import { EventDate, EventList, Feedback } from '../(type)/event';
 
 export const getEvents = async (date: EventDate): Promise<EventList> => {
   const where = date ? { eventDate: { gte: new Date(date) } } : {};
@@ -33,4 +33,18 @@ export const getEvents = async (date: EventDate): Promise<EventList> => {
   }));
 
   return result;
+};
+
+export const updateFeedback = async (userId: string, eventId: string, feedback: Feedback) => {
+  await prisma.eventParticipant.update({
+    where: {
+      eventId_userId: {
+        eventId: eventId,
+        userId: userId,
+      },
+    },
+    data: {
+      feedback: feedback,
+    },
+  });
 };
