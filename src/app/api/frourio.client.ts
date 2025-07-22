@@ -4,6 +4,7 @@ import { frourioSpec as frourioSpec_g52im } from './matching/like/frourio';
 import { frourioSpec as frourioSpec_1wayw5l } from './matching/reciveList/frourio';
 import { frourioSpec as frourioSpec_1i3eve6 } from './matching/reject/frourio';
 import { frourioSpec as frourioSpec_1lso0e7 } from './matching/sendLIst/frourio';
+import { frourioSpec as frourioSpec_1md8b19 } from './matching/submit/frourio';
 import { frourioSpec as frourioSpec_1vv65m8 } from './profile/frourio';
 import { frourioSpec as frourioSpec_36xt6y } from './frourio'
 
@@ -35,6 +36,10 @@ export const fc = (option?: FrourioClientOption) => ({
       return [{ lowLevel: true, baseURL: option?.baseURL, dir: '/api/matching/sendLIst' }, () => methods_1lso0e7(option).$get(req)];
     },
     ...methods_1lso0e7(option),
+  },
+  'matching/submit': {
+    $url: $url_1md8b19(option),
+    ...methods_1md8b19(option),
   },
   'profile': {
     $url: $url_1vv65m8(option),
@@ -149,6 +154,26 @@ export const $fc = (option?: FrourioClientOption) => ({
     return result.data.body;
     },
   },
+  'matching/submit': {
+    $url: {
+      post(): string {
+        const result = $url_1md8b19(option).post();
+
+        if (!result.isValid) throw result.reason;
+
+        return result.data;
+      },
+    },
+    async $post(req: Parameters<ReturnType<typeof methods_1md8b19>['$post']>[0]): Promise<z.infer<typeof frourioSpec_1md8b19.post.res[204]['body']>> {
+      const result = await methods_1md8b19(option).$post(req);
+
+      if (!result.isValid) throw result.isValid === false ? result.reason : result.error;
+
+      if (!result.ok) throw new Error(`HTTP Error: ${result.failure.status}`);
+
+    return result.data.body;
+    },
+  },
   'profile': {
     $url: {
       get(): string {
@@ -246,6 +271,12 @@ const $url_1i3eve6 = (option?: FrourioClientOption) => ({
 const $url_1lso0e7 = (option?: FrourioClientOption) => ({
   get(): { isValid: true; data: string; reason?: undefined } | { isValid: false, data?: undefined; reason: z.ZodError } {
     return { isValid: true, data: `${option?.baseURL?.replace(/\/$/, '') ?? ''}/api/matching/sendLIst` };
+  },
+});
+
+const $url_1md8b19 = (option?: FrourioClientOption) => ({
+  post(): { isValid: true; data: string; reason?: undefined } | { isValid: false, data?: undefined; reason: z.ZodError } {
+    return { isValid: true, data: `${option?.baseURL?.replace(/\/$/, '') ?? ''}/api/matching/submit` };
   },
 });
 
@@ -560,6 +591,76 @@ const methods_1lso0e7 = (option?: FrourioClientOption) => ({
         if (!resBody.success) return { ok: false, raw: result.res, error: resBody.error };
 
         const body = frourioSpec_1lso0e7.get.res[500].body.safeParse(resBody.data);
+
+        if (!body.success) return { ok: false, isValid: false, raw: result.res, reason: body.error };
+
+        return {
+          ok: false,
+          isValid: true,
+          failure: { status: 500, body: body.data },
+          raw: result.res,
+        };
+      }
+      default:
+        return { ok: result.res.ok, raw: result.res, error: new Error(`Unknown status: ${result.res.status}`) };
+    }
+  },
+});
+
+const methods_1md8b19 = (option?: FrourioClientOption) => ({
+  async $post(req: { body: z.infer<typeof frourioSpec_1md8b19.post.body>, init?: RequestInit }): Promise<
+    | { ok: true; isValid: true; data: { status: 204; headers?: undefined; body: z.infer<typeof frourioSpec_1md8b19.post.res[204]['body']> }; failure?: undefined; raw: Response; reason?: undefined; error?: undefined }
+    | { ok: false; isValid: true; data?: undefined; failure: { status: 500; headers?: undefined; body: z.infer<typeof frourioSpec_1md8b19.post.res[500]['body']> }; raw: Response; reason?: undefined; error?: undefined }
+    | { ok: boolean; isValid: false; data?: undefined; failure?: undefined; raw: Response; reason: z.ZodError; error?: undefined }
+    | { ok: boolean; isValid?: undefined; data?: undefined; failure?: undefined; raw: Response; reason?: undefined; error: unknown }
+    | { ok?: undefined; isValid: false; data?: undefined; failure?: undefined; raw?: undefined; reason: z.ZodError; error?: undefined }
+    | { ok?: undefined; isValid?: undefined; data?: undefined; failure?: undefined; raw?: undefined; reason?: undefined; error: unknown }
+  > {
+    const url = $url_1md8b19(option).post();
+
+    if (url.reason) return url;
+
+    const parsedBody = frourioSpec_1md8b19.post.body.safeParse(req.body);
+
+    if (!parsedBody.success) return { isValid: false, reason: parsedBody.error };
+
+    const fetchFn = option?.fetch ?? fetch;
+    const result: { success: true; res: Response } | { success: false; error: unknown } = await fetchFn(
+      url.data,
+      {
+        method: 'POST',
+        ...option?.init,
+        body: JSON.stringify(parsedBody.data),
+        ...req.init,
+        headers: { ...option?.init?.headers, 'content-type': 'application/json', ...req.init?.headers },
+      }
+    ).then(res => ({ success: true, res } as const)).catch(error => ({ success: false, error }));
+
+    if (!result.success) return { error: result.error };
+
+    switch (result.res.status) {
+      case 204: {
+        const resBody: { success: true; data: unknown } | { success: false; error: unknown } = await result.res.json().then(data => ({ success: true, data } as const)).catch(error => ({ success: false, error }));
+
+        if (!resBody.success) return { ok: true, raw: result.res, error: resBody.error };
+
+        const body = frourioSpec_1md8b19.post.res[204].body.safeParse(resBody.data);
+
+        if (!body.success) return { ok: true, isValid: false, raw: result.res, reason: body.error };
+
+        return {
+          ok: true,
+          isValid: true,
+          data: { status: 204, body: body.data },
+          raw: result.res,
+        };
+      }
+      case 500: {
+        const resBody: { success: true; data: unknown } | { success: false; error: unknown } = await result.res.json().then(data => ({ success: true, data } as const)).catch(error => ({ success: false, error }));
+
+        if (!resBody.success) return { ok: false, raw: result.res, error: resBody.error };
+
+        const body = frourioSpec_1md8b19.post.res[500].body.safeParse(resBody.data);
 
         if (!body.success) return { ok: false, isValid: false, raw: result.res, reason: body.error };
 

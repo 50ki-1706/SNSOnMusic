@@ -63,3 +63,12 @@ export const getSendList = async (senderId: string): Promise<SendList> => {
 
   return matchings;
 };
+
+export const submit = async (senderId: string, receiverId: string) => {
+  await prisma.matching.create({
+    data: {
+      senderId,
+      receiverId,
+    },
+  });
+};
