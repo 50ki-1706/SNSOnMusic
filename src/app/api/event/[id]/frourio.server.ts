@@ -1,18 +1,35 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
-import { paramsSchema as ancestorParamsSchema } from '../frourio.server';
 import { frourioSpec } from './frourio';
-import type { DELETE } from './route';
+import type { GET, DELETE } from './route';
 
-type RouteChecker = [typeof DELETE];
+type RouteChecker = [typeof GET, typeof DELETE];
 
-export const paramsSchema = ancestorParamsSchema;
+export const paramsSchema = z.object({ 'id': z.string() });
 
 type ParamsType = z.infer<typeof paramsSchema>;
 
 type SpecType = typeof frourioSpec;
 
 type Controller = {
+  get: (
+    req: {
+      params: ParamsType;
+    },
+  ) => Promise<
+    | {
+        status: 200;
+        body: z.infer<SpecType['get']['res'][200]['body']>;
+      }
+    | {
+        status: 404;
+        body: z.infer<SpecType['get']['res'][404]['body']>;
+      }
+    | {
+        status: 500;
+        body: z.infer<SpecType['get']['res'][500]['body']>;
+      }
+  >;
   delete: (
     req: {
       params: ParamsType;
@@ -21,6 +38,14 @@ type Controller = {
     | {
         status: 204;
         body: z.infer<SpecType['delete']['res'][204]['body']>;
+      }
+    | {
+        status: 403;
+        body: z.infer<SpecType['delete']['res'][403]['body']>;
+      }
+    | {
+        status: 404;
+        body: z.infer<SpecType['delete']['res'][404]['body']>;
       }
     | {
         status: 500;
@@ -36,6 +61,7 @@ type NextParams<T extends Record<string, unknown>> = {
 type MethodHandler = (req: NextRequest | Request, option: { params: Promise<NextParams<ParamsType>> }) => Promise<NextResponse>;
 
 type ResHandler = {
+  GET: MethodHandler
   DELETE: MethodHandler
 };
 
@@ -55,6 +81,35 @@ export const createRoute = (controller: Controller): ResHandler => {
   };
 
   return {
+    GET: middleware(async ({ req, params }) => {
+      const res = await controller.get({ params });
+
+      switch (res.status) {
+        case 200: {
+          const body = frourioSpec.get.res[200].body.safeParse(res.body);
+
+          if (body.error) return createResErr();
+
+          return createResponse(body.data, { status: 200 });
+        }
+        case 404: {
+          const body = frourioSpec.get.res[404].body.safeParse(res.body);
+
+          if (body.error) return createResErr();
+
+          return createResponse(body.data, { status: 404 });
+        }
+        case 500: {
+          const body = frourioSpec.get.res[500].body.safeParse(res.body);
+
+          if (body.error) return createResErr();
+
+          return createResponse(body.data, { status: 500 });
+        }
+        default:
+          throw new Error(res satisfies never);
+      }
+    }),
     DELETE: middleware(async ({ req, params }) => {
       const res = await controller.delete({ params });
 
@@ -65,6 +120,20 @@ export const createRoute = (controller: Controller): ResHandler => {
           if (body.error) return createResErr();
 
           return createResponse(body.data, { status: 204 });
+        }
+        case 403: {
+          const body = frourioSpec.delete.res[403].body.safeParse(res.body);
+
+          if (body.error) return createResErr();
+
+          return createResponse(body.data, { status: 403 });
+        }
+        case 404: {
+          const body = frourioSpec.delete.res[404].body.safeParse(res.body);
+
+          if (body.error) return createResErr();
+
+          return createResponse(body.data, { status: 404 });
         }
         case 500: {
           const body = frourioSpec.delete.res[500].body.safeParse(res.body);
