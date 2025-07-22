@@ -18,7 +18,10 @@ export const eventListSchema = z.array(
   }),
 );
 
-export const feedbackSchema = z.string().nullable();
+//テーブル構造的に、stringならfeedbackを更新、nullならfeedbackを削除を表す
+export const feedbackSchemaAtUpdate = z.string().nullable();
+//join時はfeedbackは無いため、nullのみを許可
+export const feedbackSchemaAtJoin = z.null();
 
 export const eventDateSchema = z.string().datetime().optional();
 
@@ -26,4 +29,5 @@ export type EventDate = z.infer<typeof eventDateSchema>;
 
 export type EventList = z.infer<typeof eventListSchema>;
 
-export type Feedback = z.infer<typeof feedbackSchema>;
+export type FeedbackAtUpdate = z.infer<typeof feedbackSchemaAtUpdate>;
+export type FeedbackAtJoin = z.infer<typeof feedbackSchemaAtJoin>;
