@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { frourioSpec } from './frourio';
-import type { GET, DELETE } from './route';
+import type { GET, POST, PATCH, DELETE } from './route';
 
-type RouteChecker = [typeof GET, typeof DELETE];
+type RouteChecker = [typeof GET, typeof POST, typeof PATCH, typeof DELETE];
 
 export const paramsSchema = z.object({ 'id': z.string() });
 
@@ -28,6 +28,44 @@ type Controller = {
     | {
         status: 500;
         body: z.infer<SpecType['get']['res'][500]['body']>;
+      }
+  >;
+  post: (
+    req: {
+      params: ParamsType;
+      body: z.infer<SpecType['post']['body']>;
+    },
+  ) => Promise<
+    | {
+        status: 201;
+        body: z.infer<SpecType['post']['res'][201]['body']>;
+      }
+    | {
+        status: 500;
+        body: z.infer<SpecType['post']['res'][500]['body']>;
+      }
+  >;
+  patch: (
+    req: {
+      params: ParamsType;
+      body: z.infer<SpecType['patch']['body']>;
+    },
+  ) => Promise<
+    | {
+        status: 204;
+        body: z.infer<SpecType['patch']['res'][204]['body']>;
+      }
+    | {
+        status: 403;
+        body: z.infer<SpecType['patch']['res'][403]['body']>;
+      }
+    | {
+        status: 404;
+        body: z.infer<SpecType['patch']['res'][404]['body']>;
+      }
+    | {
+        status: 500;
+        body: z.infer<SpecType['patch']['res'][500]['body']>;
       }
   >;
   delete: (
@@ -62,6 +100,8 @@ type MethodHandler = (req: NextRequest | Request, option: { params: Promise<Next
 
 type ResHandler = {
   GET: MethodHandler
+  POST: MethodHandler
+  PATCH: MethodHandler
   DELETE: MethodHandler
 };
 
@@ -101,6 +141,72 @@ export const createRoute = (controller: Controller): ResHandler => {
         }
         case 500: {
           const body = frourioSpec.get.res[500].body.safeParse(res.body);
+
+          if (body.error) return createResErr();
+
+          return createResponse(body.data, { status: 500 });
+        }
+        default:
+          throw new Error(res satisfies never);
+      }
+    }),
+    POST: middleware(async ({ req, params }) => {
+      const body = frourioSpec.post.body.safeParse(await req.json().catch(() => undefined));
+
+      if (body.error) return createReqErr(body.error);
+
+      const res = await controller.post({ body: body.data, params });
+
+      switch (res.status) {
+        case 201: {
+          const body = frourioSpec.post.res[201].body.safeParse(res.body);
+
+          if (body.error) return createResErr();
+
+          return createResponse(body.data, { status: 201 });
+        }
+        case 500: {
+          const body = frourioSpec.post.res[500].body.safeParse(res.body);
+
+          if (body.error) return createResErr();
+
+          return createResponse(body.data, { status: 500 });
+        }
+        default:
+          throw new Error(res satisfies never);
+      }
+    }),
+    PATCH: middleware(async ({ req, params }) => {
+      const body = frourioSpec.patch.body.safeParse(await req.json().catch(() => undefined));
+
+      if (body.error) return createReqErr(body.error);
+
+      const res = await controller.patch({ body: body.data, params });
+
+      switch (res.status) {
+        case 204: {
+          const body = frourioSpec.patch.res[204].body.safeParse(res.body);
+
+          if (body.error) return createResErr();
+
+          return createResponse(body.data, { status: 204 });
+        }
+        case 403: {
+          const body = frourioSpec.patch.res[403].body.safeParse(res.body);
+
+          if (body.error) return createResErr();
+
+          return createResponse(body.data, { status: 403 });
+        }
+        case 404: {
+          const body = frourioSpec.patch.res[404].body.safeParse(res.body);
+
+          if (body.error) return createResErr();
+
+          return createResponse(body.data, { status: 404 });
+        }
+        case 500: {
+          const body = frourioSpec.patch.res[500].body.safeParse(res.body);
 
           if (body.error) return createResErr();
 

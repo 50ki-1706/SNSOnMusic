@@ -157,6 +157,20 @@ export const $fc = (option?: FrourioClientOption) => ({
 
         return result.data;
       },
+      post(req: Parameters<ReturnType<typeof $url_zyt6bp>['post']>[0]): string {
+        const result = $url_zyt6bp(option).post(req);
+
+        if (!result.isValid) throw result.reason;
+
+        return result.data;
+      },
+      patch(req: Parameters<ReturnType<typeof $url_zyt6bp>['patch']>[0]): string {
+        const result = $url_zyt6bp(option).patch(req);
+
+        if (!result.isValid) throw result.reason;
+
+        return result.data;
+      },
       delete(req: Parameters<ReturnType<typeof $url_zyt6bp>['delete']>[0]): string {
         const result = $url_zyt6bp(option).delete(req);
 
@@ -177,6 +191,24 @@ export const $fc = (option?: FrourioClientOption) => ({
     },
     async $get(req: Parameters<ReturnType<typeof methods_zyt6bp>['$get']>[0]): Promise<z.infer<typeof frourioSpec_zyt6bp.get.res[200]['body']>> {
       const result = await methods_zyt6bp(option).$get(req);
+
+      if (!result.isValid) throw result.isValid === false ? result.reason : result.error;
+
+      if (!result.ok) throw new Error(`HTTP Error: ${result.failure.status}`);
+
+    return result.data.body;
+    },
+    async $post(req: Parameters<ReturnType<typeof methods_zyt6bp>['$post']>[0]): Promise<z.infer<typeof frourioSpec_zyt6bp.post.res[201]['body']>> {
+      const result = await methods_zyt6bp(option).$post(req);
+
+      if (!result.isValid) throw result.isValid === false ? result.reason : result.error;
+
+      if (!result.ok) throw new Error(`HTTP Error: ${result.failure.status}`);
+
+    return result.data.body;
+    },
+    async $patch(req: Parameters<ReturnType<typeof methods_zyt6bp>['$patch']>[0]): Promise<z.infer<typeof frourioSpec_zyt6bp.patch.res[204]['body']>> {
+      const result = await methods_zyt6bp(option).$patch(req);
 
       if (!result.isValid) throw result.isValid === false ? result.reason : result.error;
 
@@ -487,6 +519,20 @@ const $url_z4r8kd = (option?: FrourioClientOption) => ({
 
 const $url_zyt6bp = (option?: FrourioClientOption) => ({
   get(req: { params: z.infer<typeof paramsSchema_zyt6bp> }): { isValid: true; data: string; reason?: undefined } | { isValid: false, data?: undefined; reason: z.ZodError } {
+    const parsedParams = paramsSchema_zyt6bp.safeParse(req.params);
+
+    if (!parsedParams.success) return { isValid: false, reason: parsedParams.error };
+
+    return { isValid: true, data: `${option?.baseURL?.replace(/\/$/, '') ?? ''}/api/event/${parsedParams.data.id}` };
+  },
+  post(req: { params: z.infer<typeof paramsSchema_zyt6bp> }): { isValid: true; data: string; reason?: undefined } | { isValid: false, data?: undefined; reason: z.ZodError } {
+    const parsedParams = paramsSchema_zyt6bp.safeParse(req.params);
+
+    if (!parsedParams.success) return { isValid: false, reason: parsedParams.error };
+
+    return { isValid: true, data: `${option?.baseURL?.replace(/\/$/, '') ?? ''}/api/event/${parsedParams.data.id}` };
+  },
+  patch(req: { params: z.infer<typeof paramsSchema_zyt6bp> }): { isValid: true; data: string; reason?: undefined } | { isValid: false, data?: undefined; reason: z.ZodError } {
     const parsedParams = paramsSchema_zyt6bp.safeParse(req.params);
 
     if (!parsedParams.success) return { isValid: false, reason: parsedParams.error };
@@ -867,6 +913,172 @@ const methods_zyt6bp = (option?: FrourioClientOption) => ({
         if (!resBody.success) return { ok: false, raw: result.res, error: resBody.error };
 
         const body = frourioSpec_zyt6bp.get.res[500].body.safeParse(resBody.data);
+
+        if (!body.success) return { ok: false, isValid: false, raw: result.res, reason: body.error };
+
+        return {
+          ok: false,
+          isValid: true,
+          failure: { status: 500, body: body.data },
+          raw: result.res,
+        };
+      }
+      default:
+        return { ok: result.res.ok, raw: result.res, error: new Error(`Unknown status: ${result.res.status}`) };
+    }
+  },
+  async $post(req: { params: z.infer<typeof paramsSchema_zyt6bp>, body: z.infer<typeof frourioSpec_zyt6bp.post.body>, init?: RequestInit }): Promise<
+    | { ok: true; isValid: true; data: { status: 201; headers?: undefined; body: z.infer<typeof frourioSpec_zyt6bp.post.res[201]['body']> }; failure?: undefined; raw: Response; reason?: undefined; error?: undefined }
+    | { ok: false; isValid: true; data?: undefined; failure: { status: 500; headers?: undefined; body: z.infer<typeof frourioSpec_zyt6bp.post.res[500]['body']> }; raw: Response; reason?: undefined; error?: undefined }
+    | { ok: boolean; isValid: false; data?: undefined; failure?: undefined; raw: Response; reason: z.ZodError; error?: undefined }
+    | { ok: boolean; isValid?: undefined; data?: undefined; failure?: undefined; raw: Response; reason?: undefined; error: unknown }
+    | { ok?: undefined; isValid: false; data?: undefined; failure?: undefined; raw?: undefined; reason: z.ZodError; error?: undefined }
+    | { ok?: undefined; isValid?: undefined; data?: undefined; failure?: undefined; raw?: undefined; reason?: undefined; error: unknown }
+  > {
+    const url = $url_zyt6bp(option).post(req);
+
+    if (url.reason) return url;
+
+    const parsedBody = frourioSpec_zyt6bp.post.body.safeParse(req.body);
+
+    if (!parsedBody.success) return { isValid: false, reason: parsedBody.error };
+
+    const fetchFn = option?.fetch ?? fetch;
+    const result: { success: true; res: Response } | { success: false; error: unknown } = await fetchFn(
+      url.data,
+      {
+        method: 'POST',
+        ...option?.init,
+        body: JSON.stringify(parsedBody.data),
+        ...req.init,
+        headers: { ...option?.init?.headers, 'content-type': 'application/json', ...req.init?.headers },
+      }
+    ).then(res => ({ success: true, res } as const)).catch(error => ({ success: false, error }));
+
+    if (!result.success) return { error: result.error };
+
+    switch (result.res.status) {
+      case 201: {
+        const resBody: { success: true; data: unknown } | { success: false; error: unknown } = await result.res.json().then(data => ({ success: true, data } as const)).catch(error => ({ success: false, error }));
+
+        if (!resBody.success) return { ok: true, raw: result.res, error: resBody.error };
+
+        const body = frourioSpec_zyt6bp.post.res[201].body.safeParse(resBody.data);
+
+        if (!body.success) return { ok: true, isValid: false, raw: result.res, reason: body.error };
+
+        return {
+          ok: true,
+          isValid: true,
+          data: { status: 201, body: body.data },
+          raw: result.res,
+        };
+      }
+      case 500: {
+        const resBody: { success: true; data: unknown } | { success: false; error: unknown } = await result.res.json().then(data => ({ success: true, data } as const)).catch(error => ({ success: false, error }));
+
+        if (!resBody.success) return { ok: false, raw: result.res, error: resBody.error };
+
+        const body = frourioSpec_zyt6bp.post.res[500].body.safeParse(resBody.data);
+
+        if (!body.success) return { ok: false, isValid: false, raw: result.res, reason: body.error };
+
+        return {
+          ok: false,
+          isValid: true,
+          failure: { status: 500, body: body.data },
+          raw: result.res,
+        };
+      }
+      default:
+        return { ok: result.res.ok, raw: result.res, error: new Error(`Unknown status: ${result.res.status}`) };
+    }
+  },
+  async $patch(req: { params: z.infer<typeof paramsSchema_zyt6bp>, body: z.infer<typeof frourioSpec_zyt6bp.patch.body>, init?: RequestInit }): Promise<
+    | { ok: true; isValid: true; data: { status: 204; headers?: undefined; body: z.infer<typeof frourioSpec_zyt6bp.patch.res[204]['body']> }; failure?: undefined; raw: Response; reason?: undefined; error?: undefined }
+    | { ok: false; isValid: true; data?: undefined; failure: { status: 403; headers?: undefined; body: z.infer<typeof frourioSpec_zyt6bp.patch.res[403]['body']> } | { status: 404; headers?: undefined; body: z.infer<typeof frourioSpec_zyt6bp.patch.res[404]['body']> } | { status: 500; headers?: undefined; body: z.infer<typeof frourioSpec_zyt6bp.patch.res[500]['body']> }; raw: Response; reason?: undefined; error?: undefined }
+    | { ok: boolean; isValid: false; data?: undefined; failure?: undefined; raw: Response; reason: z.ZodError; error?: undefined }
+    | { ok: boolean; isValid?: undefined; data?: undefined; failure?: undefined; raw: Response; reason?: undefined; error: unknown }
+    | { ok?: undefined; isValid: false; data?: undefined; failure?: undefined; raw?: undefined; reason: z.ZodError; error?: undefined }
+    | { ok?: undefined; isValid?: undefined; data?: undefined; failure?: undefined; raw?: undefined; reason?: undefined; error: unknown }
+  > {
+    const url = $url_zyt6bp(option).patch(req);
+
+    if (url.reason) return url;
+
+    const parsedBody = frourioSpec_zyt6bp.patch.body.safeParse(req.body);
+
+    if (!parsedBody.success) return { isValid: false, reason: parsedBody.error };
+
+    const fetchFn = option?.fetch ?? fetch;
+    const result: { success: true; res: Response } | { success: false; error: unknown } = await fetchFn(
+      url.data,
+      {
+        method: 'PATCH',
+        ...option?.init,
+        body: JSON.stringify(parsedBody.data),
+        ...req.init,
+        headers: { ...option?.init?.headers, 'content-type': 'application/json', ...req.init?.headers },
+      }
+    ).then(res => ({ success: true, res } as const)).catch(error => ({ success: false, error }));
+
+    if (!result.success) return { error: result.error };
+
+    switch (result.res.status) {
+      case 204: {
+        const resBody: { success: true; data: unknown } | { success: false; error: unknown } = await result.res.json().then(data => ({ success: true, data } as const)).catch(error => ({ success: false, error }));
+
+        if (!resBody.success) return { ok: true, raw: result.res, error: resBody.error };
+
+        const body = frourioSpec_zyt6bp.patch.res[204].body.safeParse(resBody.data);
+
+        if (!body.success) return { ok: true, isValid: false, raw: result.res, reason: body.error };
+
+        return {
+          ok: true,
+          isValid: true,
+          data: { status: 204, body: body.data },
+          raw: result.res,
+        };
+      }
+      case 403: {
+        const resBody: { success: true; data: unknown } | { success: false; error: unknown } = await result.res.json().then(data => ({ success: true, data } as const)).catch(error => ({ success: false, error }));
+
+        if (!resBody.success) return { ok: false, raw: result.res, error: resBody.error };
+
+        const body = frourioSpec_zyt6bp.patch.res[403].body.safeParse(resBody.data);
+
+        if (!body.success) return { ok: false, isValid: false, raw: result.res, reason: body.error };
+
+        return {
+          ok: false,
+          isValid: true,
+          failure: { status: 403, body: body.data },
+          raw: result.res,
+        };
+      }
+      case 404: {
+        const resBody: { success: true; data: unknown } | { success: false; error: unknown } = await result.res.json().then(data => ({ success: true, data } as const)).catch(error => ({ success: false, error }));
+
+        if (!resBody.success) return { ok: false, raw: result.res, error: resBody.error };
+
+        const body = frourioSpec_zyt6bp.patch.res[404].body.safeParse(resBody.data);
+
+        if (!body.success) return { ok: false, isValid: false, raw: result.res, reason: body.error };
+
+        return {
+          ok: false,
+          isValid: true,
+          failure: { status: 404, body: body.data },
+          raw: result.res,
+        };
+      }
+      case 500: {
+        const resBody: { success: true; data: unknown } | { success: false; error: unknown } = await result.res.json().then(data => ({ success: true, data } as const)).catch(error => ({ success: false, error }));
+
+        if (!resBody.success) return { ok: false, raw: result.res, error: resBody.error };
+
+        const body = frourioSpec_zyt6bp.patch.res[500].body.safeParse(resBody.data);
 
         if (!body.success) return { ok: false, isValid: false, raw: result.res, reason: body.error };
 
