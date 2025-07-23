@@ -196,8 +196,7 @@ model DMRoom {
   // 参加者一覧（必ず2人だけ登録される想定）
   participants DMRoomParticipant[]
 
-  // 必要ならメッセージとも1:Nリレーション
-  // messages     Message[]
+ 
   Message Message[]
 }
 
