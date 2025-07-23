@@ -1,4 +1,5 @@
 import { prisma } from '@/lib/prisma';
+import { DmRoomList } from '../(type)/dm';
 import { DmRoomWithMessages } from '../(type)/message';
 
 /**
@@ -81,4 +82,31 @@ export const findDMRoom = async (roomId: string) => {
   });
 
   return dmRoom;
+};
+
+export const getDMRoomList = async (userId: string): Promise<DmRoomList> => {
+  const dmRooms = await prisma.dMRoom.findMany({
+    where: {
+      participants: {
+        some: {
+          userId,
+        },
+      },
+    },
+    select: {
+      id: true,
+      participants: {
+        select: {
+          user: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
+        },
+      },
+    },
+  });
+
+  return dmRooms;
 };
