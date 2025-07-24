@@ -11,6 +11,7 @@ export const getProfile = async (userId: string): Promise<UserProfile> => {
       name: true,
       email: true,
       gender: true,
+      image: true,
       age: true,
       bio: true,
       UserFavoriteGenre: {
@@ -27,17 +28,7 @@ export const getProfile = async (userId: string): Promise<UserProfile> => {
 
   if (!user) throw new Error('ユーザーが見つかりません');
 
-  return {
-    id: user.id,
-    name: user.name,
-    email: user.email,
-    gender: user.gender,
-    age: user.age,
-    bio: user.bio ?? null,
-    userFavoriteGenre: user.UserFavoriteGenre.map((genre) => genre.genre),
-    userFavoriteArtist: user.UserFavoriteArtist.map((artist) => artist.artist),
-    event: user.Event,
-  };
+  return user;
 };
 
 // プロフィール更新
@@ -46,6 +37,8 @@ export const updateProfile = async (profile: UserProfileUpdate, userId: string) 
   await prisma.user.update({
     where: { id: userId },
     data: {
+      name: profile.name,
+      image: profile.image,
       gender: profile.gender,
       age: profile.age,
       bio: profile.bio,
@@ -53,20 +46,20 @@ export const updateProfile = async (profile: UserProfileUpdate, userId: string) 
   });
 
   // お気に入りジャンルの更新
-  if (profile.userFavoriteGenre) {
+  if (profile.UserFavoriteGenre) {
     // 既存削除→新規作成
     await prisma.userFavoriteGenre.deleteMany({ where: { userId } });
     await prisma.userFavoriteGenre.createMany({
-      data: profile.userFavoriteGenre.map((genre) => ({ userId, genre })),
+      data: profile.UserFavoriteGenre.map((genre) => ({ userId, genre: genre.genre })),
     });
   }
 
   // お気に入りアーティストの更新
-  if (profile.userFavoriteArtist) {
+  if (profile.UserFavoriteArtist) {
     // 既存削除→新規作成
     await prisma.userFavoriteArtist.deleteMany({ where: { userId } });
     await prisma.userFavoriteArtist.createMany({
-      data: profile.userFavoriteArtist.map((artist) => ({ userId, artist })),
+      data: profile.UserFavoriteArtist.map((artist) => ({ userId, artist: artist.artist })),
     });
   }
 };
