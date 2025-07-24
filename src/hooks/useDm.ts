@@ -1,5 +1,5 @@
 'use client';
-import { apiClient } from '@/lib/apiClient';
+
 import { Message } from '@/lib/types/dm';
 import { createClient, RealtimeChannel } from '@supabase/supabase-js';
 import { useEffect, useState } from 'react';
@@ -27,16 +27,11 @@ export const useDm = ({ dmId }: { dmId: string }) => {
   const broadcastMessage = async (message: Message) => {
     if (!channel) return;
 
-    channel
-      .send({
-        type: 'broadcast',
-        event: 'shout',
-        payload: message,
-      })
-      .then((resp) => console.log(resp));
-
-    //フロントエンドのstateを更新
-    handleChangeMessage(message);
+    channel.send({
+      type: 'broadcast',
+      event: 'shout',
+      payload: message,
+    });
   };
 
   //websocketに関する処理
@@ -70,8 +65,10 @@ export const useDm = ({ dmId }: { dmId: string }) => {
 
 const fetchMessage = async (dmId: string) => {
   try {
-    const res = apiClient['dm/[id]/message'].$get({ params: { id: dmId } });
-    return res;
+    const res = await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/dm/${dmId}/message`);
+    const data = await res.json();
+
+    return data;
   } catch (error) {
     throw error;
   }
@@ -79,11 +76,12 @@ const fetchMessage = async (dmId: string) => {
 
 const sendMessage = async (dmId: string, messageContent: string) => {
   try {
-    const res = apiClient['dm/[id]/message'].$post({
-      params: { id: dmId },
-      body: { content: messageContent },
+    const res = await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/dm/${dmId}/message`, {
+      method: 'POST',
+      body: JSON.stringify({ content: messageContent }),
     });
-    return res;
+    const data = await res.json();
+    return data;
   } catch (error) {
     throw error;
   }
@@ -91,11 +89,12 @@ const sendMessage = async (dmId: string, messageContent: string) => {
 
 const updateMessage = async (dmId: string, messageId: string, messageContent: string) => {
   try {
-    const res = apiClient['dm/[id]/message'].$patch({
-      params: { id: dmId },
-      body: { messageId, content: messageContent },
+    const res = await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/dm/${dmId}/message`, {
+      method: 'PATCH',
+      body: JSON.stringify({ messageId, content: messageContent }),
     });
-    return res;
+    const data = await res.json();
+    return data;
   } catch (error) {
     throw error;
   }
@@ -103,11 +102,12 @@ const updateMessage = async (dmId: string, messageId: string, messageContent: st
 
 const deleteMessage = async (dmId: string, messageId: string) => {
   try {
-    const res = apiClient['dm/[id]/message'].$delete({
-      params: { id: dmId },
-      body: { messageId },
+    const res = await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/dm/${dmId}/message`, {
+      method: 'DELETE',
+      body: JSON.stringify({ messageId }),
     });
-    return res;
+    const data = await res.json();
+    return data;
   } catch (error) {
     throw error;
   }

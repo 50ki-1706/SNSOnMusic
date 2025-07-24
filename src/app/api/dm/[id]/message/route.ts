@@ -5,148 +5,105 @@ import {
   findMessage,
   updateMessage,
 } from '@/app/api/(Repository)/message';
+import { NextRequest, NextResponse } from 'next/server';
 import { userIdInApi } from '../../../(lib)/userIdInApi';
-import { createRoute } from './frourio.server';
 
-export const { GET, POST, PATCH, DELETE } = createRoute({
-  get: async ({ params: { id: roomId } }) => {
-    try {
-      const userId = await userIdInApi();
+export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
+  try {
+    const userId = await userIdInApi();
+    const { id: roomId } = await params;
 
-      // DMルームの存在確認と参加者チェック
-      const dmRoom = await getDMRoomWithMessages(roomId);
+    const dmRoom = await getDMRoomWithMessages(roomId);
 
-      if (!dmRoom) {
-        return {
-          status: 404,
-          body: { message: 'DM room not found' },
-        };
-      }
-
-      // 参加者かどうかチェック
-      const isParticipant = dmRoom.participants.some((p) => p.user.id === userId);
-      if (!isParticipant) {
-        return {
-          status: 403,
-          body: { message: 'You are not a participant of this DM room' },
-        };
-      }
-      console.log('****************************************');
-
-      return {
-        status: 200,
-        body: dmRoom,
-      };
-    } catch (error) {
-      console.error(error);
-      return {
-        status: 500,
-        body: { message: 'Failed to fetch DM room' },
-      };
+    if (!dmRoom) {
+      return NextResponse.json({ message: 'DM room not found' }, { status: 404 });
     }
-  },
 
-  post: async ({ params: { id: roomId }, body: { content } }) => {
-    try {
-      const senderId = await userIdInApi();
-
-      const dmRoom = await findDMRoom(roomId);
-
-      if (!dmRoom) {
-        return {
-          status: 404,
-          body: { message: 'DM room not found' },
-        };
-      }
-
-      // 参加者かどうかチェック
-      const isParticipant = dmRoom.participants.some((p) => p.userId === senderId);
-      if (!isParticipant) {
-        return {
-          status: 403,
-          body: { message: 'You are not a participant of this DM room' },
-        };
-      }
-
-      const message = await createMessage(roomId, senderId, content);
-
-      return {
-        status: 200,
-        body: message,
-      };
-    } catch (error) {
-      return {
-        status: 500,
-        body: { message: 'Failed to create message' },
-      };
+    const isParticipant = dmRoom.participants.some((p) => p.user.id === userId);
+    if (!isParticipant) {
+      return NextResponse.json(
+        { message: 'You are not a participant of this DM room' },
+        { status: 403 },
+      );
     }
-  },
 
-  patch: async ({ body: { messageId, content } }) => {
-    try {
-      const userId = await userIdInApi();
+    return NextResponse.json(dmRoom);
+  } catch (error) {
+    console.error(error);
+    return NextResponse.json({ message: 'Failed to fetch DM room' }, { status: 500 });
+  }
+}
 
-      const message = await findMessage(messageId);
+export async function POST(request: NextRequest, { params }: { params: { id: string } }) {
+  try {
+    const senderId = await userIdInApi();
+    const { id: roomId } = await params;
+    const { content } = await request.json();
 
-      if (!message) {
-        return {
-          status: 404,
-          body: { message: 'Message not found' },
-        };
-      }
+    const dmRoom = await findDMRoom(roomId);
 
-      if (message.senderId !== userId) {
-        return {
-          status: 403,
-          body: { message: 'You can only edit your own messages' },
-        };
-      }
-
-      await updateMessage(messageId, content);
-
-      return {
-        status: 204,
-        body: { message: 'Message updated successfully' },
-      };
-    } catch (error) {
-      return {
-        status: 500,
-        body: { message: 'Failed to update message' },
-      };
+    if (!dmRoom) {
+      return NextResponse.json({ message: 'DM room not found' }, { status: 404 });
     }
-  },
 
-  delete: async ({ body: { messageId } }) => {
-    try {
-      const userId = await userIdInApi();
-
-      const message = await findMessage(messageId);
-
-      if (!message) {
-        return {
-          status: 404,
-          body: { message: 'Message not found' },
-        };
-      }
-
-      if (message.senderId !== userId) {
-        return {
-          status: 403,
-          body: { message: 'You can only delete your own messages' },
-        };
-      }
-
-      await deleteMessage(messageId);
-
-      return {
-        status: 204,
-        body: { message: 'Message deleted successfully' },
-      };
-    } catch (error) {
-      return {
-        status: 500,
-        body: { message: 'Failed to delete message' },
-      };
+    const isParticipant = dmRoom.participants.some((p) => p.userId === senderId);
+    if (!isParticipant) {
+      return NextResponse.json(
+        { message: 'You are not a participant of this DM room' },
+        { status: 403 },
+      );
     }
-  },
-});
+
+    const message = await createMessage(roomId, senderId, content);
+    return NextResponse.json(message);
+  } catch (error) {
+    return NextResponse.json({ message: 'Failed to create message' }, { status: 500 });
+  }
+}
+
+export async function PATCH(request: NextRequest) {
+  try {
+    const userId = await userIdInApi();
+    const { messageId, content } = await request.json();
+
+    const message = await findMessage(messageId);
+
+    if (!message) {
+      return NextResponse.json({ message: 'Message not found' }, { status: 404 });
+    }
+
+    if (message.senderId !== userId) {
+      return NextResponse.json({ message: 'You can only edit your own messages' }, { status: 403 });
+    }
+
+    await updateMessage(messageId, content);
+    return NextResponse.json({ message: 'Message updated successfully' }, { status: 204 });
+  } catch (error) {
+    return NextResponse.json({ message: 'Failed to update message' }, { status: 500 });
+  }
+}
+
+export async function DELETE(request: NextRequest) {
+  try {
+    const userId = await userIdInApi();
+    const { messageId } = await request.json();
+
+    const message = await findMessage(messageId);
+
+    if (!message) {
+      return NextResponse.json({ message: 'Message not found' }, { status: 404 });
+    }
+
+    if (message.senderId !== userId) {
+      return NextResponse.json(
+        { message: 'You can only delete your own messages' },
+        { status: 403 },
+      );
+    }
+
+    await deleteMessage(messageId);
+    return NextResponse.json({ message: 'Message deleted successfully' }, { status: 204 });
+  } catch (error) {
+    return NextResponse.json({ message: 'Failed to delete message' }, { status: 500 });
+  }
+}

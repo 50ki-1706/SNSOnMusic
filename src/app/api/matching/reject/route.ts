@@ -1,26 +1,16 @@
+import { NextRequest, NextResponse } from 'next/server';
 import { userIdInApi } from '../../(lib)/userIdInApi';
 import { reject } from '../../(Repository)/matching';
-import { createRoute } from './frourio.server';
 
-export const { PATCH } = createRoute({
-  patch: async ({ body: { senderId } }) => {
-    try {
-      const receiverId = await userIdInApi();
-      await reject(senderId, receiverId);
+export async function PATCH(request: NextRequest) {
+  try {
+    const receiverId = await userIdInApi();
+    const { senderId } = await request.json();
 
-      return {
-        status: 204,
-        body: {
-          message: 'Successfully rejected the matching',
-        },
-      };
-    } catch (error) {
-      return {
-        status: 500,
-        body: {
-          message: 'Failed to reject the matching',
-        },
-      };
-    }
-  },
-});
+    await reject(senderId, receiverId);
+
+    return NextResponse.json({ message: 'Successfully rejected the matching' }, { status: 204 });
+  } catch (error) {
+    return NextResponse.json({ message: 'Failed to reject the matching' }, { status: 500 });
+  }
+}

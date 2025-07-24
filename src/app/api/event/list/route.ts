@@ -1,20 +1,14 @@
+import { NextRequest, NextResponse } from 'next/server';
 import { getEvents } from '../../(Repository)/event';
-import { createRoute } from './frourio.server';
 
-export const { GET } = createRoute({
-  get: async ({ query: { eventDate } }) => {
-    try {
-      const result = await getEvents(eventDate);
+export async function GET(request: NextRequest) {
+  try {
+    const searchParams = request.nextUrl.searchParams;
+    const eventDate = searchParams.get('eventDate') || undefined;
 
-      return {
-        status: 200,
-        body: result,
-      };
-    } catch (error) {
-      return {
-        status: 500,
-        body: { message: 'Failed to fetch events' },
-      };
-    }
-  },
-});
+    const result = await getEvents(eventDate);
+    return NextResponse.json(result);
+  } catch (error) {
+    return NextResponse.json({ message: 'Failed to fetch events' }, { status: 500 });
+  }
+}
