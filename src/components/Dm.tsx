@@ -1,27 +1,37 @@
 'use client';
 import { useDm } from '@/hooks/useDm';
-import { Message } from '@/lib/types/dm';
+import { Message, User } from '@/lib/types/dm';
 import Image from 'next/image';
 import { useParams } from 'next/navigation';
 import { useState } from 'react';
 const Dm = ({ userId }: { userId: string | undefined }) => {
   const { id: dmId } = useParams();
-  const { messageState, handleSendMessage } = useDm({ dmId: dmId as string });
+  const { messageState, handleSendMessage, otherUser } = useDm({
+    dmId: dmId as string,
+    userId: userId,
+  });
 
   return (
     <div className='flex h-screen flex-col bg-gray-50'>
-      <Header />
+      <Header otherUser={otherUser} />
       <MessageList messages={messageState} userId={userId} />
       <MessageInput sendMessage={handleSendMessage} />
     </div>
   );
 };
 
-const Header = () => {
+const Header = ({ otherUser }: { otherUser: User }) => {
   return (
-    <div className='border-b border-gray-200 bg-white px-6 py-4 shadow-sm'>
+    <div className='min-h-14 border-b border-gray-200 bg-white px-6 py-4 shadow-sm'>
       <div className='flex items-center space-x-3'>
-        <p>相手のユーザー名</p>
+        <Image
+          src={otherUser.image || '/user.jpeg'}
+          alt={otherUser.name}
+          width={32}
+          height={32}
+          className='shrink-0 rounded-full object-cover'
+        />
+        <p>{otherUser.name}</p>
       </div>
     </div>
   );
@@ -36,7 +46,7 @@ const MessageList = ({ messages, userId }: { messages: Message[]; userId: string
           className={`flex ${message.sender.id === userId ? 'justify-end' : 'justify-start'}`}
         >
           <div
-            className={`flex max-w-xs  lg:max-w-md ${message.sender.id === userId ? 'flex-row-reverse' : 'flex-row'} items-end space-x-2`}
+            className={`flex max-w-xs lg:max-w-md ${message.sender.id === userId ? 'flex-row-reverse' : 'flex-row'} items-end space-x-2`}
           >
             <Image
               src={message.sender.image || '/user.jpeg'}

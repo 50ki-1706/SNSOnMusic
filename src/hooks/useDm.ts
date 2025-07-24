@@ -1,13 +1,19 @@
 'use client';
 
-import { Message } from '@/lib/types/dm';
+import { DmRoomWithMessages } from '@/app/api/(type)/message';
+import { Message, User } from '@/lib/types/dm';
 import { createClient, RealtimeChannel } from '@supabase/supabase-js';
 import { useEffect, useState } from 'react';
 import { SUPABASE_KEY, SUPABASE_URL } from '../../supabase-env';
 
-export const useDm = ({ dmId }: { dmId: string }) => {
+export const useDm = ({ dmId, userId }: { dmId: string; userId: string | undefined }) => {
   const [messageState, setMessageState] = useState<Message[]>([]);
-  const [channel, setChannel] = useState<RealtimeChannel | null>(null);
+  const [channel, setChannel] = useState<RealtimeChannel | undefined>(undefined);
+  const [otherUser, setOtherUser] = useState<User>({
+    id: '',
+    name: '',
+    image: null,
+  });
 
   const handleChangeMessage = (message: Message) => {
     setMessageState((prev) => [...(prev || []), message]);
@@ -55,15 +61,20 @@ export const useDm = ({ dmId }: { dmId: string }) => {
   }, []);
 
   useEffect(() => {
-    fetchMessage(dmId).then((res) => {
+    fetchDmRoomWithMessages(dmId).then((res) => {
       setMessageState(res.messages);
+
+      const otherUser = res.participants.find((p) => p.user.id !== userId)?.user;
+      if (otherUser) {
+        setOtherUser(otherUser);
+      }
     });
   }, [dmId]);
 
-  return { messageState, handleSendMessage };
+  return { messageState, handleSendMessage, otherUser };
 };
 
-const fetchMessage = async (dmId: string) => {
+const fetchDmRoomWithMessages = async (dmId: string): Promise<DmRoomWithMessages> => {
   try {
     const res = await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/dm/${dmId}/message`);
     const data = await res.json();

@@ -7,6 +7,7 @@ export const dmRoomWithMessagesSchema = z.object({
       user: z.object({
         id: z.string(),
         name: z.string(),
+        image: z.string().nullable(),
       }),
     }),
   ),
