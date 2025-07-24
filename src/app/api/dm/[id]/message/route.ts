@@ -9,12 +9,12 @@ import { userIdInApi } from '../../../(lib)/userIdInApi';
 import { createRoute } from './frourio.server';
 
 export const { GET, POST, PATCH, DELETE } = createRoute({
-  get: async ({ params: { id } }) => {
+  get: async ({ params: { id: roomId } }) => {
     try {
       const userId = await userIdInApi();
 
       // DMルームの存在確認と参加者チェック
-      const dmRoom = await getDMRoomWithMessages(id);
+      const dmRoom = await getDMRoomWithMessages(roomId);
 
       if (!dmRoom) {
         return {
@@ -31,12 +31,14 @@ export const { GET, POST, PATCH, DELETE } = createRoute({
           body: { message: 'You are not a participant of this DM room' },
         };
       }
+      console.log('****************************************');
 
       return {
         status: 200,
         body: dmRoom,
       };
     } catch (error) {
+      console.error(error);
       return {
         status: 500,
         body: { message: 'Failed to fetch DM room' },
@@ -44,7 +46,7 @@ export const { GET, POST, PATCH, DELETE } = createRoute({
     }
   },
 
-  post: async ({ body: { roomId, content } }) => {
+  post: async ({ params: { id: roomId }, body: { content } }) => {
     try {
       const senderId = await userIdInApi();
 

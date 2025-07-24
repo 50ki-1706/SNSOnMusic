@@ -1,47 +1,55 @@
 'use client';
+import { apiClient } from '@/lib/apiClient';
+import { Message } from '@/lib/types/dm';
 import { createClient, RealtimeChannel } from '@supabase/supabase-js';
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { SUPABASE_KEY, SUPABASE_URL } from '../../supabase-env';
-interface Payload {
-  content: string;
-}
-export const useDm = () => {
-  const [messages, setMessages] = useState<Payload[]>([{ content: 'hi' }]);
-  const [testChannel, setTestChannel] = useState<RealtimeChannel | null>(null);
 
-  const handleChangeMessage = (message: string) => {
-    setMessages((prev) => [...(prev || []), { content: message }]);
+export const useDm = ({ dmId }: { dmId: string }) => {
+  const [messageState, setMessageState] = useState<Message[]>([]);
+  const [channel, setChannel] = useState<RealtimeChannel | null>(null);
+
+  const handleChangeMessage = (message: Message) => {
+    setMessageState((prev) => [...(prev || []), message]);
   };
 
-  const sendMessage = async (message: string) => {
-    if (!testChannel) return;
+  const handleSendMessage = async (messageContent: string): Promise<void> => {
+    //バックエンドにメッセージを送信
+    const newMessage = await sendMessage(dmId, messageContent);
 
-    testChannel
+    //websocketで相手にメッセージを送信
+    broadcastMessage(newMessage);
+
+    //フロントエンドのstateを更新
+    handleChangeMessage(newMessage);
+  };
+
+  const broadcastMessage = async (message: Message) => {
+    if (!channel) return;
+
+    channel
       .send({
         type: 'broadcast',
         event: 'shout',
-        payload: { content: message },
+        payload: message,
       })
       .then((resp) => console.log(resp));
 
+    //フロントエンドのstateを更新
     handleChangeMessage(message);
   };
 
-  const handleCreateChannel = useCallback(() => {
-    const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
-    const newChannel = supabase.channel('test-channel');
-    return newChannel;
-  }, []);
-
+  //websocketに関する処理
   useEffect(() => {
     //websoketチャンネルを作成
-    const newChannel = handleCreateChannel();
-    setTestChannel(newChannel);
+    const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+    const newChannel = supabase.channel('test-channel');
+    setChannel(newChannel);
 
     //メッセージを受信したらhandleChangeMessageを呼び出す
     newChannel
-      .on<Payload>('broadcast', { event: 'shout' }, (message) => {
-        handleChangeMessage(message.payload.content);
+      .on<Message>('broadcast', { event: 'shout' }, (message) => {
+        handleChangeMessage(message.payload);
       })
       .subscribe();
 
@@ -49,7 +57,58 @@ export const useDm = () => {
     return () => {
       newChannel.unsubscribe();
     };
-  }, [handleCreateChannel]);
+  }, []);
 
-  return { messages, sendMessage };
+  useEffect(() => {
+    fetchMessage(dmId).then((res) => {
+      setMessageState(res.messages);
+    });
+  }, [dmId]);
+
+  return { messageState, handleSendMessage };
+};
+
+const fetchMessage = async (dmId: string) => {
+  try {
+    const res = apiClient['dm/[id]/message'].$get({ params: { id: dmId } });
+    return res;
+  } catch (error) {
+    throw error;
+  }
+};
+
+const sendMessage = async (dmId: string, messageContent: string) => {
+  try {
+    const res = apiClient['dm/[id]/message'].$post({
+      params: { id: dmId },
+      body: { content: messageContent },
+    });
+    return res;
+  } catch (error) {
+    throw error;
+  }
+};
+
+const updateMessage = async (dmId: string, messageId: string, messageContent: string) => {
+  try {
+    const res = apiClient['dm/[id]/message'].$patch({
+      params: { id: dmId },
+      body: { messageId, content: messageContent },
+    });
+    return res;
+  } catch (error) {
+    throw error;
+  }
+};
+
+const deleteMessage = async (dmId: string, messageId: string) => {
+  try {
+    const res = apiClient['dm/[id]/message'].$delete({
+      params: { id: dmId },
+      body: { messageId },
+    });
+    return res;
+  } catch (error) {
+    throw error;
+  }
 };

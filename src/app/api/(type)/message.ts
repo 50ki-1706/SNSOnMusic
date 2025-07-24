@@ -18,20 +18,24 @@ export const dmRoomWithMessagesSchema = z.object({
       sender: z.object({
         id: z.string(),
         name: z.string(),
+        image: z.string().nullable(),
       }),
     }),
   ),
 });
 
 export const postReqSchema = z.object({
-  roomId: z.string(),
   content: z.string(),
 });
 
 export const messageCreatedSchema = z.object({
   id: z.string(),
   roomId: z.string(),
-  senderId: z.string(),
+  sender: z.object({
+    id: z.string(),
+    name: z.string(),
+    image: z.string().nullable(),
+  }),
   content: z.string(),
   createdAt: z.string().datetime(),
 });
