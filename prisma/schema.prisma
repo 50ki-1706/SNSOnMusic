@@ -13,9 +13,38 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
+  NOT_SPECIFIED
+}
+
+enum EventStatus {
+  OPEN
+  CLOSED
+  CANCELLED
+}
+
+enum MusicGenre {
+  ROCK
+  POP
+  JAZZ
+  CLASSIC
+  HIPHOP
+  EDM
+  OTHER
+}
+
+enum MatchingStatus {
+  PENDING
+  LIKED
+  REJECTED
+}
+
 model User {
   id            String          @id @default(cuid())
-  name          String?
+  name          String
   email         String          @unique
   emailVerified DateTime?
   image         String?
@@ -24,8 +53,22 @@ model User {
   // Optional for WebAuthn support
   Authenticator Authenticator[]
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  gender             Gender               @default(NOT_SPECIFIED)
+  age                Int                  @default(0)
+  //自己紹介文
+  bio                String?
+  UserFavoriteGenre  UserFavoriteGenre[] // お気に入りジャンル
+  UserFavoriteArtist UserFavoriteArtist[] // お気に入りアーティスト
+
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  Event     Event[]
+  Matching  Matching[] @relation("SentMatchings")
+  Matching2 Matching[] @relation("ReceivedMatchings")
+
+  DMRoomParticipant DMRoomParticipant[]
+  Message           Message[]
+  EventParticipant   EventParticipant[] // イベントの参加者リスト
 }
 
 model Account {
@@ -81,4 +124,101 @@ model Authenticator {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@id([userId, credentialID])
+}
+
+model Event {
+  id               String             @id @default(cuid())
+  title            String             @unique
+  description      String
+  status           EventStatus        @default(OPEN)
+  organizerId      String // イベントの主催者
+  organizer        User               @relation(fields: [organizerId], references: [id], onDelete: Cascade)
+  ticketCount      Int? // 募集者が持っているチケットの枚数（nullable）
+  location         String // イベントの場所
+  externalUrl      String? // イベントの外部URL（nullable）
+  eventDate        DateTime // イベントの日時
+  genre            MusicGenre // イベントのジャンル
+  fee              Int? // 金額（単位はアプリで統一）
+  deadline         DateTime? // イベントの締め切り日時
+  participantsList EventParticipant[] // イベントの参加者リスト
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model EventParticipant {
+  eventId String
+  userId  String
+  feedback String? //stringならfeedbackを更新、nullならfeedbackを削除を表すように実装されている
+  event   Event  @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  user    User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([eventId, userId])
+}
+
+model UserFavoriteGenre {
+  userId String
+  genre  MusicGenre
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([userId, genre])
+}
+
+model UserFavoriteArtist {
+  userId String
+  artist String
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([userId, artist])
+}
+
+model Matching {
+  senderId       String
+  receiverId     String
+  matchingStatus MatchingStatus @default(PENDING)
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+
+  sender   User @relation("SentMatchings", fields: [senderId], references: [id], onDelete: Cascade)
+  receiver User @relation("ReceivedMatchings", fields: [receiverId], references: [id], onDelete: Cascade)
+
+  @@id([senderId, receiverId])
+}
+
+// DMルーム本体
+model DMRoom {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // 参加者一覧（必ず2人だけ登録される想定）
+  participants DMRoomParticipant[]
+
+ 
+  Message Message[]
+}
+
+// DMルーム ⇔ ユーザー の中間テーブル
+model DMRoomParticipant {
+  roomId String
+  userId String
+
+  dmRoom DMRoom @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([roomId, userId])
+}
+
+model Message {
+  id        String   @id @default(cuid())
+  roomId    String
+  senderId  String
+  content   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  room   DMRoom @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  sender User   @relation(fields: [senderId], references: [id], onDelete: Cascade)
 }
