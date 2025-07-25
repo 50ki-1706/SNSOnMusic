@@ -1,11 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { userIdInApi } from '../../(lib)/userIdInApi';
 import { joinEvent } from '../../(Repository)/event';
 
 export async function POST(request: NextRequest) {
   try {
-    const userId = await userIdInApi();
-    const { eventId, feedback } = await request.json();
+    const { userId, eventId, feedback } = await request.json();
 
     await joinEvent(userId, eventId, feedback);
 
