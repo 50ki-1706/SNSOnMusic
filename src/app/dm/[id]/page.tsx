@@ -1,20 +1,8 @@
-'use client';
+import { auth } from '@/auth';
+import Dm from '@/components/Dm';
 
-import { useDm } from '@/hooks/useDm';
-
-const Page = () => {
-  const { messages, sendMessage } = useDm();
-
-  return (
-    <div>
-      <div>
-        {messages.map((message, index) => (
-          <div key={index}>{message.content}</div>
-        ))}
-      </div>
-      <button onClick={() => sendMessage('Hello')}>Send</button>
-    </div>
-  );
-};
-
-export default Page;
+export default async function Server() {
+  const session = await auth();
+  const userId = session?.user?.id;
+  return <Dm userId={userId} />;
+}

@@ -1,17 +1,13 @@
 import { userIdInApi } from '@/app/api/(lib)/userIdInApi';
 import { cancelEvent } from '@/app/api/(Repository)/event';
-import { createRoute } from './frourio.server';
+import { NextRequest, NextResponse } from 'next/server';
 
-export const { DELETE } = createRoute({
-  delete: async ({ params: { id } }) => {
-    try {
-      const userId = await userIdInApi();
-
-      await cancelEvent(id, userId);
-
-      return { status: 204, body: { message: 'event canceled' } };
-    } catch (error) {
-      return { status: 500, body: { message: 'internal server error' } };
-    }
-  },
-});
+export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
+  try {
+    const userId = await userIdInApi();
+    await cancelEvent(params.id, userId);
+    return NextResponse.json({ message: 'event canceled' }, { status: 204 });
+  } catch (error) {
+    return NextResponse.json({ message: 'internal server error' }, { status: 500 });
+  }
+}

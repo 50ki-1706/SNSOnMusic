@@ -1,47 +1,56 @@
 'use client';
+
+import { DmRoomWithMessages } from '@/app/api/(type)/message';
+import { Message, User } from '@/lib/types/dm';
 import { createClient, RealtimeChannel } from '@supabase/supabase-js';
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { SUPABASE_KEY, SUPABASE_URL } from '../../supabase-env';
-interface Payload {
-  content: string;
-}
-export const useDm = () => {
-  const [messages, setMessages] = useState<Payload[]>([{ content: 'hi' }]);
-  const [testChannel, setTestChannel] = useState<RealtimeChannel | null>(null);
 
-  const handleChangeMessage = (message: string) => {
-    setMessages((prev) => [...(prev || []), { content: message }]);
+export const useDm = ({ dmId, userId }: { dmId: string; userId: string | undefined }) => {
+  const [messageState, setMessageState] = useState<Message[]>([]);
+  const [channel, setChannel] = useState<RealtimeChannel | undefined>(undefined);
+  const [otherUser, setOtherUser] = useState<User>({
+    id: '',
+    name: '',
+    image: null,
+  });
+
+  const handleChangeMessage = (message: Message) => {
+    setMessageState((prev) => [...(prev || []), message]);
   };
 
-  const sendMessage = async (message: string) => {
-    if (!testChannel) return;
+  const handleSendMessage = async (messageContent: string): Promise<void> => {
+    //バックエンドにメッセージを送信
+    const newMessage = await sendMessage(dmId, messageContent);
 
-    testChannel
-      .send({
-        type: 'broadcast',
-        event: 'shout',
-        payload: { content: message },
-      })
-      .then((resp) => console.log(resp));
+    //websocketで相手にメッセージを送信
+    broadcastMessage(newMessage);
 
-    handleChangeMessage(message);
+    //フロントエンドのstateを更新
+    handleChangeMessage(newMessage);
   };
 
-  const handleCreateChannel = useCallback(() => {
-    const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
-    const newChannel = supabase.channel('test-channel');
-    return newChannel;
-  }, []);
+  const broadcastMessage = async (message: Message) => {
+    if (!channel) return;
 
+    channel.send({
+      type: 'broadcast',
+      event: 'shout',
+      payload: message,
+    });
+  };
+
+  //websocketに関する処理
   useEffect(() => {
     //websoketチャンネルを作成
-    const newChannel = handleCreateChannel();
-    setTestChannel(newChannel);
+    const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+    const newChannel = supabase.channel('test-channel');
+    setChannel(newChannel);
 
     //メッセージを受信したらhandleChangeMessageを呼び出す
     newChannel
-      .on<Payload>('broadcast', { event: 'shout' }, (message) => {
-        handleChangeMessage(message.payload.content);
+      .on<Message>('broadcast', { event: 'shout' }, (message) => {
+        handleChangeMessage(message.payload);
       })
       .subscribe();
 
@@ -49,7 +58,68 @@ export const useDm = () => {
     return () => {
       newChannel.unsubscribe();
     };
-  }, [handleCreateChannel]);
+  }, []);
 
-  return { messages, sendMessage };
+  useEffect(() => {
+    fetchDmRoomWithMessages(dmId).then((res) => {
+      setMessageState(res.messages);
+
+      const otherUser = res.participants.find((p) => p.user.id !== userId)?.user;
+      if (otherUser) {
+        setOtherUser(otherUser);
+      }
+    });
+  }, [dmId]);
+
+  return { messageState, handleSendMessage, otherUser };
+};
+
+const fetchDmRoomWithMessages = async (dmId: string): Promise<DmRoomWithMessages> => {
+  try {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/dm/${dmId}/message`);
+    const data = await res.json();
+
+    return data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+const sendMessage = async (dmId: string, messageContent: string) => {
+  try {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/dm/${dmId}/message`, {
+      method: 'POST',
+      body: JSON.stringify({ content: messageContent }),
+    });
+    const data = await res.json();
+    return data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+const updateMessage = async (dmId: string, messageId: string, messageContent: string) => {
+  try {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/dm/${dmId}/message`, {
+      method: 'PATCH',
+      body: JSON.stringify({ messageId, content: messageContent }),
+    });
+    const data = await res.json();
+    return data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+const deleteMessage = async (dmId: string, messageId: string) => {
+  try {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/dm/${dmId}/message`, {
+      method: 'DELETE',
+      body: JSON.stringify({ messageId }),
+    });
+    const data = await res.json();
+    return data;
+  } catch (error) {
+    throw error;
+  }
 };

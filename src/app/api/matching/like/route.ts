@@ -1,22 +1,21 @@
+import { NextRequest, NextResponse } from 'next/server';
 import { userIdInApi } from '../../(lib)/userIdInApi';
 import { createDMRoomWithParticipants } from '../../(Repository)/dm';
 import { like } from '../../(Repository)/matching';
-import { createRoute } from './frourio.server';
 
-export const { PATCH } = createRoute({
-  patch: async ({ body }) => {
-    try {
-      const receiverId = await userIdInApi();
+export async function PATCH(request: NextRequest) {
+  try {
+    const receiverId = await userIdInApi();
+    const { senderId } = await request.json();
 
-      //マッチングステータスをLIKEに変更
-      await like(body.senderId, receiverId);
+    // マッチングステータスをLIKEに変更
+    await like(senderId, receiverId);
 
-      //DMルームを作成
-      await createDMRoomWithParticipants(body.senderId, receiverId);
+    // DMルームを作成
+    await createDMRoomWithParticipants(senderId, receiverId);
 
-      return { status: 204, body: { message: 'updated matching status' } };
-    } catch (error) {
-      return { status: 500, body: { message: 'faild to update matching status' } };
-    }
-  },
-});
+    return NextResponse.json({ message: 'updated matching status' }, { status: 204 });
+  } catch (error) {
+    return NextResponse.json({ message: 'failed to update matching status' }, { status: 500 });
+  }
+}

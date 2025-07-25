@@ -1,3 +1,4 @@
+import { NextRequest, NextResponse } from 'next/server';
 import { userIdInApi } from '../../(lib)/userIdInApi';
 import {
   createEvent,
@@ -6,116 +7,79 @@ import {
   getEvent,
   updateEvent,
 } from '../../(Repository)/event';
-import { createRoute } from './frourio.server';
 
-export const { GET, DELETE, POST, PATCH } = createRoute({
-  get: async ({ params: { id } }) => {
-    try {
-      const event = await getEvent(id);
+export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
+  try {
+    const event = await getEvent(params.id);
 
-      if (!event) {
-        return {
-          status: 404,
-          body: { message: 'Event not found' },
-        };
-      }
-
-      return {
-        status: 200,
-        body: event,
-      };
-    } catch (error) {
-      return {
-        status: 500,
-        body: { message: 'Failed to fetch event' },
-      };
+    if (!event) {
+      return NextResponse.json({ message: 'Event not found' }, { status: 404 });
     }
-  },
 
-  post: async ({ body }) => {
-    try {
-      const organizerId = await userIdInApi();
+    return NextResponse.json(event);
+  } catch (error) {
+    return NextResponse.json({ message: 'Failed to fetch event' }, { status: 500 });
+  }
+}
 
-      const newEvent = await createEvent(body, organizerId);
+export async function POST(request: NextRequest) {
+  try {
+    const organizerId = await userIdInApi();
+    const body = await request.json();
+    const newEvent = await createEvent(body, organizerId);
 
-      return {
-        status: 201,
-        body: newEvent,
-      };
-    } catch (error) {
-      return {
-        status: 500,
-        body: { message: 'Failed to create event' },
-      };
+    return NextResponse.json(newEvent, { status: 201 });
+  } catch (error) {
+    return NextResponse.json({ message: 'Failed to create event' }, { status: 500 });
+  }
+}
+
+export async function PATCH(request: NextRequest) {
+  try {
+    const organizerId = await userIdInApi();
+    const body = await request.json();
+
+    const existingEvent = await findEvent(body.id);
+
+    if (!existingEvent) {
+      return NextResponse.json({ message: 'Event not found' }, { status: 404 });
     }
-  },
 
-  patch: async ({ body }) => {
-    try {
-      const organizerId = await userIdInApi();
-
-      // イベントの存在確認と権限チェック
-      const existingEvent = await findEvent(body.id);
-
-      if (!existingEvent) {
-        return {
-          status: 404,
-          body: { message: 'Event not found' },
-        };
-      }
-
-      if (existingEvent.organizerId !== organizerId) {
-        return {
-          status: 403,
-          body: { message: 'You do not have permission to update this event' },
-        };
-      }
-
-      await updateEvent(body);
-
-      return {
-        status: 204,
-        body: { message: 'Event updated successfully' },
-      };
-    } catch (error) {
-      return {
-        status: 500,
-        body: { message: 'Failed to update event' },
-      };
+    if (existingEvent.organizerId !== organizerId) {
+      return NextResponse.json(
+        { message: 'You do not have permission to update this event' },
+        { status: 403 },
+      );
     }
-  },
 
-  delete: async ({ params: { id } }) => {
-    try {
-      const userId = await userIdInApi();
+    await updateEvent(body);
 
-      const event = await findEvent(id);
+    return NextResponse.json({ message: 'Event updated successfully' }, { status: 204 });
+  } catch (error) {
+    return NextResponse.json({ message: 'Failed to update event' }, { status: 500 });
+  }
+}
 
-      if (!event) {
-        return {
-          status: 404,
-          body: { message: 'Event not found' },
-        };
-      }
+export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
+  try {
+    const userId = await userIdInApi();
+    const event = await findEvent(params.id);
 
-      if (event.organizerId !== userId) {
-        return {
-          status: 403,
-          body: { message: 'You do not have permission to delete this event' },
-        };
-      }
-
-      await deleteEvent(id);
-
-      return {
-        status: 204,
-        body: { message: 'Event deleted successfully' },
-      };
-    } catch (error) {
-      return {
-        status: 500,
-        body: { message: 'Failed to delete event' },
-      };
+    if (!event) {
+      return NextResponse.json({ message: 'Event not found' }, { status: 404 });
     }
-  },
-});
+
+    if (event.organizerId !== userId) {
+      return NextResponse.json(
+        { message: 'You do not have permission to delete this event' },
+        { status: 403 },
+      );
+    }
+
+    await deleteEvent(params.id);
+
+    return NextResponse.json({ message: 'Event deleted successfully' }, { status: 204 });
+  } catch (error) {
+    return NextResponse.json({ message: 'Failed to delete event' }, { status: 500 });
+  }
+}

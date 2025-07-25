@@ -1,27 +1,16 @@
+import { NextRequest, NextResponse } from 'next/server';
 import { userIdInApi } from '../../(lib)/userIdInApi';
 import { joinEvent } from '../../(Repository)/event';
-import { createRoute } from './frourio.server';
 
-export const { POST } = createRoute({
-  post: async ({ body: { eventId, feedback } }) => {
-    try {
-      const userId = await userIdInApi();
+export async function POST(request: NextRequest) {
+  try {
+    const userId = await userIdInApi();
+    const { eventId, feedback } = await request.json();
 
-      await joinEvent(userId, eventId, feedback);
+    await joinEvent(userId, eventId, feedback);
 
-      return {
-        status: 204,
-        body: {
-          message: 'Successfully joined the event',
-        },
-      };
-    } catch (error) {
-      return {
-        status: 500,
-        body: {
-          message: 'Failed to join the event',
-        },
-      };
-    }
-  },
-});
+    return NextResponse.json({ message: 'Successfully joined the event' }, { status: 204 });
+  } catch (error) {
+    return NextResponse.json({ message: 'Failed to join the event' }, { status: 500 });
+  }
+}

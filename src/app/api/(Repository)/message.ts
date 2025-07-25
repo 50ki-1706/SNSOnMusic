@@ -13,12 +13,19 @@ export const createMessage = async (
       senderId,
       content,
     },
+    include: {
+      sender: true,
+    },
   });
 
   return {
     id: message.id,
     roomId: message.roomId,
-    senderId: message.senderId,
+    sender: {
+      id: message.senderId,
+      name: message.sender.name,
+      image: message.sender.image,
+    },
     content: message.content,
     createdAt: message.createdAt.toISOString(),
   };

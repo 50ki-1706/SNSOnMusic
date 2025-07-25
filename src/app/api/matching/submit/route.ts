@@ -1,23 +1,16 @@
+import { NextRequest, NextResponse } from 'next/server';
 import { userIdInApi } from '../../(lib)/userIdInApi';
 import { submit } from '../../(Repository)/matching';
-import { createRoute } from './frourio.server';
 
-export const { POST } = createRoute({
-  post: async ({ body: { receiverId } }) => {
-    try {
-      const senderId = await userIdInApi();
+export async function POST(request: NextRequest) {
+  try {
+    const senderId = await userIdInApi();
+    const { receiverId } = await request.json();
 
-      await submit(senderId, receiverId);
+    await submit(senderId, receiverId);
 
-      return {
-        status: 204,
-        body: { message: 'Matching created successfully' },
-      };
-    } catch (error) {
-      return {
-        status: 500,
-        body: { message: 'Failed to create matching' },
-      };
-    }
-  },
-});
+    return NextResponse.json({ message: 'Matching created successfully' }, { status: 204 });
+  } catch (error) {
+    return NextResponse.json({ message: 'Failed to create matching' }, { status: 500 });
+  }
+}

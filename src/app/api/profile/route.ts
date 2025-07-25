@@ -1,26 +1,25 @@
+import { NextRequest, NextResponse } from 'next/server';
 import { userIdInApi } from '../(lib)/userIdInApi';
 import { getProfile, updateProfile } from '../(Repository)/profile';
-import { createRoute } from './frourio.server';
 
-export const { GET, PATCH } = createRoute({
-  get: async (req) => {
-    try {
-      const userId = await userIdInApi();
+export async function GET(request: NextRequest) {
+  try {
+    const userId = await userIdInApi();
+    const profile = await getProfile(userId);
+    return NextResponse.json(profile);
+  } catch (error) {
+    return NextResponse.json({ message: 'internal server error' }, { status: 500 });
+  }
+}
 
-      const profile = await getProfile(userId);
-      return { status: 200, body: profile };
-    } catch (error) {
-      return { status: 500, body: { message: 'internal server error' } };
-    }
-  },
-  patch: async (req) => {
-    try {
-      const userId = await userIdInApi();
+export async function PATCH(request: NextRequest) {
+  try {
+    const userId = await userIdInApi();
+    const body = await request.json();
 
-      await updateProfile(req.body, userId);
-      return { status: 204, body: { message: 'no content' } };
-    } catch (error) {
-      return { status: 500, body: { message: 'internal server error' } };
-    }
-  },
-});
+    await updateProfile(body, userId);
+    return NextResponse.json({ message: 'no content' }, { status: 204 });
+  } catch (error) {
+    return NextResponse.json({ message: 'internal server error' }, { status: 500 });
+  }
+}

@@ -36,6 +36,7 @@ export const getDMRoomWithMessages = async (id: string): Promise<DmRoomWithMessa
             select: {
               id: true,
               name: true,
+              image: true,
             },
           },
         },
@@ -49,6 +50,7 @@ export const getDMRoomWithMessages = async (id: string): Promise<DmRoomWithMessa
             select: {
               id: true,
               name: true,
+              image: true,
             },
           },
         },
