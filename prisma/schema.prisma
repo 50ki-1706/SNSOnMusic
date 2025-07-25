@@ -27,12 +27,46 @@ enum EventStatus {
 }
 
 enum MusicGenre {
-  ROCK
   POP
+  ROCK
+  HIP_HOP
+  R_B
   JAZZ
-  CLASSIC
-  HIPHOP
+  CLASSICAL
   EDM
+  COUNTRY
+  FOLK
+  BLUES
+  SOUL
+  FUNK
+  REGGAE
+  SKA
+  PUNK
+  HEAVY_METAL
+  GOSPEL
+  DISCO
+  HOUSE
+  TECHNO
+  TRANCE
+  DRUM_AND_BASS
+  AMBIENT
+  LATIN
+  SALSA
+  BOSSA_NOVA
+  TANGO
+  K_POP
+  J_POP
+  ENKA
+  AFROBEAT
+  WORLD_MUSIC
+  NEW_AGE
+  PROGRESSIVE_ROCK
+  ALTERNATIVE_ROCK
+  GRUNGE
+  INDIE_ROCK
+  BLUES_ROCK
+  FUSION
+  OPERA
   OTHER
 }
 
@@ -66,9 +100,10 @@ model User {
   Matching  Matching[] @relation("SentMatchings")
   Matching2 Matching[] @relation("ReceivedMatchings")
 
-  DMRoomParticipant DMRoomParticipant[]
+  ChatRoomParticipant ChatRoomParticipant[]
   Message           Message[]
   EventParticipant   EventParticipant[] // イベントの参加者リスト
+  EventApplicant     EventApplicant[] // イベントの応募者リスト
 }
 
 model Account {
@@ -140,11 +175,24 @@ model Event {
   genre            MusicGenre // イベントのジャンル
   fee              Int? // 金額（単位はアプリで統一）
   deadline         DateTime? // イベントの締め切り日時
+
   participantsList EventParticipant[] // イベントの参加者リスト
+  applicants EventApplicant[] // イベントの応募者リスト
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
+
+model EventApplicant { 
+  eventId String
+  userId String
+  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([eventId, userId])
+}
+
+
 
 model EventParticipant {
   eventId String
@@ -188,24 +236,22 @@ model Matching {
 }
 
 // DMルーム本体
-model DMRoom {
+model ChatRoom {
   id        String   @id @default(cuid())
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   // 参加者一覧（必ず2人だけ登録される想定）
-  participants DMRoomParticipant[]
-
- 
+  participants ChatRoomParticipant[]
   Message Message[]
 }
 
 // DMルーム ⇔ ユーザー の中間テーブル
-model DMRoomParticipant {
+model ChatRoomParticipant {
   roomId String
   userId String
 
-  dmRoom DMRoom @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  chatRoom ChatRoom @relation(fields: [roomId], references: [id], onDelete: Cascade)
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@id([roomId, userId])
@@ -219,6 +265,6 @@ model Message {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  room   DMRoom @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  room   ChatRoom @relation(fields: [roomId], references: [id], onDelete: Cascade)
   sender User   @relation(fields: [senderId], references: [id], onDelete: Cascade)
 }

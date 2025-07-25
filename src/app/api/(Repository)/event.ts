@@ -179,3 +179,26 @@ export const updateEvent = async (event: EventPatchReq) => {
     },
   });
 };
+
+export const getEventForDashboard = async (eventId: string) => {
+  const event = await prisma.event.findUnique({
+    where: {
+      id: eventId,
+    },
+    include: {
+      organizer: true,
+      applicants: {
+        include: {
+          user: true,
+        },
+      },
+      participantsList: {
+        include: {
+          user: true,
+        },
+      },
+    },
+  });
+
+  return event;
+};
