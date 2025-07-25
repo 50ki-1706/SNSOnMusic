@@ -51,3 +51,31 @@ export const deleteBlog = async (blogId: string) => {
     where: { id: blogId },
   });
 };
+
+export const likeBlog = async (blogId: string, userId: string) => {
+  await prisma.blogLike.create({
+    data: {
+      blogId,
+      userId,
+    },
+  });
+};
+
+export const findBlogLike = async (blogId: string, userId: string) => {
+  const blog = await prisma.blogLike.findUnique({
+    where: { blogId_userId: { blogId, userId } },
+  });
+
+  return blog;
+};
+
+export const deleteBlogLike = async (blogId: string, userId: string) => {
+  await prisma.blogLike.delete({
+    where: {
+      blogId_userId: {
+        blogId,
+        userId,
+      },
+    },
+  });
+};
