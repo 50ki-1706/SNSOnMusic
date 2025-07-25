@@ -103,6 +103,7 @@ model User {
   ChatRoomParticipant ChatRoomParticipant[]
   Message           Message[]
   EventParticipant   EventParticipant[] // イベントの参加者リスト
+  EventApplicant     EventApplicant[] // イベントの応募者リスト
 }
 
 model Account {
@@ -174,11 +175,24 @@ model Event {
   genre            MusicGenre // イベントのジャンル
   fee              Int? // 金額（単位はアプリで統一）
   deadline         DateTime? // イベントの締め切り日時
+
   participantsList EventParticipant[] // イベントの参加者リスト
+  applicants EventApplicant[] // イベントの応募者リスト
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
+
+model EventApplicant { 
+  eventId String
+  userId String
+  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([eventId, userId])
+}
+
+
 
 model EventParticipant {
   eventId String
