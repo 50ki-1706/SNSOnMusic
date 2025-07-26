@@ -12,7 +12,7 @@ export default async function Server() {
     const headersList = headers();
     const cookie = (await headersList).get('cookie') || '';
 
-    const response = await fetch(`${process.env.APP_URL}/api/profile`, {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/profile`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
