@@ -1,13 +1,13 @@
 import { NextResponse } from 'next/server';
 import { userIdInApi } from '../../(lib)/userIdInApi';
-import { getDMRoomList } from '../../(Repository)/chat';
+import { getChatRoomList } from '../../(Repository)/chat';
 
 export async function GET() {
   try {
     const userId = await userIdInApi();
-    const dmRooms = await getDMRoomList(userId);
-    return NextResponse.json(dmRooms);
+    const chatRooms = await getChatRoomList(userId);
+    return NextResponse.json(chatRooms);
   } catch (error) {
-    return NextResponse.json({ message: 'Failed to fetch DM rooms' }, { status: 500 });
+    return NextResponse.json({ message: 'Failed to fetch chat rooms' }, { status: 500 });
   }
 }
