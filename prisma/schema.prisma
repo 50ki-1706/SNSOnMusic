@@ -106,6 +106,8 @@ model User {
   EventApplicant      EventApplicant[] // イベントの応募者リスト
   Blog                Blog[]
   BlogLike            BlogLike[]
+  BlogComment         BlogComment[]
+  BlogCommentLike     BlogCommentLike[]
 }
 
 model Account {
@@ -277,7 +279,8 @@ model Blog {
   userId String
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  BlogLike BlogLike[]
+  BlogLike    BlogLike[]
+  BlogComment BlogComment[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -290,4 +293,27 @@ model BlogLike {
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@id([blogId, userId])
+}
+
+model BlogComment {
+  id        String   @id @default(cuid())
+  blogId    String
+  userId    String
+  content   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  blog Blog @relation(fields: [blogId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  BlogCommentLike BlogCommentLike[]
+}
+
+model BlogCommentLike {
+  blogCommentId String
+  userId        String
+  blogComment   BlogComment @relation(fields: [blogCommentId], references: [id], onDelete: Cascade)
+  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([blogCommentId, userId])
 }
