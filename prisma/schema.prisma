@@ -172,6 +172,8 @@ model Event {
   genre       MusicGenre // イベントのジャンル
   fee         Int? // 金額（単位はアプリで統一）
   deadline    DateTime? // イベントの締め切り日時
+  image       String? // イベントの画像
+  artist      String[] // イベントのアーティスト
 
   participantsList EventParticipant[] // イベントの参加者リスト
   applicants       EventApplicant[] // イベントの応募者リスト
