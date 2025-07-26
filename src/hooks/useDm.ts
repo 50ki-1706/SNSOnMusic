@@ -5,6 +5,7 @@ import { Message, User } from '@/lib/types/dm';
 import { createClient, RealtimeChannel } from '@supabase/supabase-js';
 import { useEffect, useState } from 'react';
 
+
 export const useDm = ({
   dmId,
   userId,
