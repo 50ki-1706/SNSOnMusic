@@ -1,12 +1,12 @@
 'use client';
-import { useDm } from '@/hooks/useDm';
-import { Message, User } from '@/lib/types/dm';
+import { useChat } from '@/hooks/useChat';
+import { Message, User } from '@/lib/types/chat';
 import Image from 'next/image';
 import { useParams } from 'next/navigation';
 import { useState } from 'react';
-const Dm = ({ userId }: { userId: string | undefined }) => {
+const Chat = ({ userId }: { userId: string | undefined }) => {
   const { id: dmId } = useParams();
-  const { messageState, handleSendMessage, otherUser } = useDm({
+  const { messageState, handleSendMessage, otherUser } = useChat({
     dmId: dmId as string,
     userId: userId,
   });
@@ -129,4 +129,4 @@ const MessageInput = ({
     </div>
   );
 };
-export default Dm;
+export default Chat;

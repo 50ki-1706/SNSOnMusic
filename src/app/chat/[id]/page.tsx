@@ -1,8 +1,8 @@
 import { auth } from '@/auth';
-import Dm from '@/components/Dm';
+import Chat from '@/components/chat/chat';
 
 export default async function Server() {
   const session = await auth();
   const userId = session?.user?.id;
-  return <Dm userId={userId} />;
+  return <Chat userId={userId} />;
 }

@@ -1,12 +1,12 @@
 'use client';
 
 import { DmRoomWithMessages } from '@/app/api/(type)/message';
-import { Message, User } from '@/lib/types/dm';
+import { Message, User } from '@/lib/types/chat';
 import { createClient, RealtimeChannel } from '@supabase/supabase-js';
 import { useEffect, useState } from 'react';
 import { SUPABASE_KEY, SUPABASE_URL } from '../../supabase-env';
 
-export const useDm = ({ dmId, userId }: { dmId: string; userId: string | undefined }) => {
+export const useChat = ({ dmId, userId }: { dmId: string; userId: string | undefined }) => {
   const [messageState, setMessageState] = useState<Message[]>([]);
   const [channel, setChannel] = useState<RealtimeChannel | undefined>(undefined);
   const [otherUser, setOtherUser] = useState<User>({
