@@ -2,9 +2,12 @@ import { userIdInApi } from '@/app/api/(lib)/userIdInApi';
 import { createCommentLike, deleteCommentLike, findCommentLike } from '@/app/api/(Repository)/blog';
 import { NextRequest, NextResponse } from 'next/server';
 
-export const POST = async (req: NextRequest, { params }: { params: { id: string } }) => {
+export const POST = async (
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string; commentId: string }> },
+) => {
   try {
-    const blogId = params.id;
+    const { id: blogId } = await params;
     const userId = await userIdInApi();
 
     // コメントいいねを作成
@@ -17,9 +20,12 @@ export const POST = async (req: NextRequest, { params }: { params: { id: string 
   }
 };
 
-export const DELETE = async (req: NextRequest, { params }: { params: { commentId: string } }) => {
+export const DELETE = async (
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string; commentId: string }> },
+) => {
   try {
-    const commentId = params.commentId;
+    const { commentId } = await params;
     const userId = await userIdInApi();
 
     // コメントいいねの存在確認

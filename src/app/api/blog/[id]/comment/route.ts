@@ -2,9 +2,9 @@ import { userIdInApi } from '@/app/api/(lib)/userIdInApi';
 import { createComment } from '@/app/api/(Repository)/blog';
 import { NextRequest, NextResponse } from 'next/server';
 
-export const POST = async (req: NextRequest, { params }: { params: { id: string } }) => {
+export const POST = async (req: NextRequest, { params }: { params: Promise<{ id: string }> }) => {
   try {
-    const blogId = params.id;
+    const { id: blogId } = await params;
     const userId = await userIdInApi();
 
     // リクエストボディからcontentを取得

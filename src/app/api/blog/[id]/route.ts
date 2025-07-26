@@ -3,9 +3,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { userIdInApi } from '../../(lib)/userIdInApi';
 import { deleteBlog, findBlog, getSpecificBlog, updateBlog } from '../../(Repository)/blog';
 
-export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const blogId = params.id;
+    const { id: blogId } = await params;
 
     const blog = await getSpecificBlog(blogId);
 
@@ -19,10 +19,10 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
   }
 }
 
-export async function PATCH(request: NextRequest, { params }: { params: { id: string } }) {
+export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const userId = await userIdInApi();
-    const blogId = params.id;
+    const { id: blogId } = await params;
     const { title, content } = await request.json();
 
     // Check if blog exists
@@ -48,10 +48,13 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
   }
 }
 
-export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> },
+) {
   try {
     const userId = await userIdInApi();
-    const blogId = params.id;
+    const { id: blogId } = await params;
 
     // Check if blog exists
     const blog = await prisma.blog.findUnique({

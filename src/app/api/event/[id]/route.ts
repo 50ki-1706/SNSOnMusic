@@ -2,9 +2,10 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createEvent, getEvent } from '../../(Repository)/event';
 import { userIdInApi } from '../../(lib)/userIdInApi';
 
-export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const event = await getEvent(params.id);
+    const { id: eventId } = await params;
+    const event = await getEvent(eventId);
 
     if (!event) {
       return NextResponse.json({ message: 'Event not found' }, { status: 404 });

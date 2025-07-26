@@ -2,10 +2,10 @@ import { deleteBlogLike, findBlog, findBlogLike, likeBlog } from '@/app/api/(Rep
 import { NextRequest, NextResponse } from 'next/server';
 import { userIdInApi } from '../../../(lib)/userIdInApi';
 
-export async function POST(request: NextRequest, { params }: { params: { id: string } }) {
+export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const userId = await userIdInApi();
-    const blogId = params.id;
+    const { id: blogId } = await params;
 
     const blog = await findBlog(blogId);
 
@@ -21,10 +21,13 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
   }
 }
 
-export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> },
+) {
   try {
     const userId = await userIdInApi();
-    const blogId = params.id;
+    const { id: blogId } = await params;
 
     // Check if blog exists
     const blog = await findBlogLike(blogId, userId);
