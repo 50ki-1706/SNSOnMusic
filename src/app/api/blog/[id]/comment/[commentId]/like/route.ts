@@ -2,7 +2,10 @@ import { userIdInApi } from '@/app/api/(lib)/userIdInApi';
 import { createCommentLike, deleteCommentLike, findCommentLike } from '@/app/api/(Repository)/blog';
 import { NextRequest, NextResponse } from 'next/server';
 
-export const POST = async (req: NextRequest, { params }: { params: { id: string } }) => {
+export const POST = async (
+  req: NextRequest,
+  { params }: { params: { id: string; commentId: string } },
+) => {
   try {
     const blogId = params.id;
     const userId = await userIdInApi();
@@ -17,7 +20,10 @@ export const POST = async (req: NextRequest, { params }: { params: { id: string 
   }
 };
 
-export const DELETE = async (req: NextRequest, { params }: { params: { commentId: string } }) => {
+export const DELETE = async (
+  req: NextRequest,
+  { params }: { params: { id: string; commentId: string } },
+) => {
   try {
     const commentId = params.commentId;
     const userId = await userIdInApi();
