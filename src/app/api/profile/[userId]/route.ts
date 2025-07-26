@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getProfile, updateProfile } from '../../(Repository)/profile';
+import { getProfile } from '../../(Repository)/profile';
 
 export async function GET(
   request: NextRequest,
@@ -13,4 +13,3 @@ export async function GET(
     return NextResponse.json({ message: 'internal server error' }, { status: 500 });
   }
 }
-

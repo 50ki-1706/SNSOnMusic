@@ -7,7 +7,7 @@ export const POST = async (
   { params }: { params: Promise<{ id: string; commentId: string }> },
 ) => {
   try {
-    const {commentId } = await params;
+    const { commentId } = await params;
     const userId = await userIdInApi();
 
     // コメントいいねを作成

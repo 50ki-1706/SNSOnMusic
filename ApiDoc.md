@@ -56,11 +56,11 @@ Chatルームオブジェクト（参加者情報とメッセージ一覧）
 
 ### エラー時のレスポンス
 
-| ステータスコード | 内容                 |
-| :--------------- | :------------------- |
+| ステータスコード | 内容                   |
+| :--------------- | :--------------------- |
 | 404              | Chatルームが存在しない |
-| 403              | 参加権限がない       |
-| 500              | サーバーエラー       |
+| 403              | 参加権限がない         |
+| 500              | サーバーエラー         |
 
 ---
 
@@ -80,9 +80,9 @@ Chatルームオブジェクト（参加者情報とメッセージ一覧）
 
 ### パスパラメーター
 
-| パラメーター名 | 型       | 必須/任意 | 説明           |
-| :------------- | :------- | :-------- | :------------- |
-| `roomId`       | `string` | 必須      | chatルーム ID   |
+| パラメーター名 | 型       | 必須/任意 | 説明          |
+| :------------- | :------- | :-------- | :------------ |
+| `roomId`       | `string` | 必須      | chatルーム ID |
 
 ### リクエストボディ
 
@@ -259,15 +259,15 @@ Chatルームオブジェクト（参加者情報とメッセージ一覧）
 ### リクエストボディ
 
 イベント作成用オブジェクト
-    title: string;   
-    description: string;
-    ticketCount: number | null;
-    location: string;
-    externalUrl: string | null;
-    eventDate: string;  
-    genre: Genre;  
-    fee: number | null;
-    deadline: string | null;
+title: string;  
+ description: string;
+ticketCount: number | null;
+location: string;
+externalUrl: string | null;
+eventDate: string;  
+ genre: Genre;  
+ fee: number | null;
+deadline: string | null;
 
 ### レスポンスボディ (201 Created)
 
@@ -296,18 +296,18 @@ Chatルームオブジェクト（参加者情報とメッセージ一覧）
 `PATCH`
 
 ### リクエストボディ
+
     id: string;
-    status: "OPEN" | "CLOSED" | "CANCELLED"; 
+    status: "OPEN" | "CLOSED" | "CANCELLED";
     title: string;
     description: string;
     ticketCount: number | null;
     location: string;
     externalUrl: string | null;
     eventDate: string;
-    genre: 
+    genre:
     fee: number | null;
     deadline: string | null;
-
 
 ### レスポンスボディ (204 No Content)
 
@@ -444,10 +444,9 @@ Chatルームオブジェクト（参加者情報とメッセージ一覧）
 
 ### リクエストボディ
 
-| パラメーター名 | 型       | 必須/任意 | 説明               |
-| :------------- | :------- | :-------- | :----------------- |
-| `eventId`      | `string` | 必須      | イベント ID        |
-
+| パラメーター名 | 型       | 必須/任意 | 説明        |
+| :------------- | :------- | :-------- | :---------- |
+| `eventId`      | `string` | 必須      | イベント ID |
 
 ### レスポンスボディ (204 No Content)
 
@@ -649,8 +648,6 @@ interface EventDashboard {
 | 500              | サーバーエラー |
 
 ---
-
-
 
 ## API名: ブログ作成
 
