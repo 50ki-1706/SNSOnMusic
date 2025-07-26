@@ -12,6 +12,13 @@ export const EventSchema = z.array(
   }),
 );
 
+export const BlogSchema = z.array(
+  z.object({
+    id: z.string(),
+    title: z.string(),
+  }),
+);
+
 export const UserProfileSchema = z.object({
   id: z.string(),
   name: z.string(),
@@ -23,6 +30,7 @@ export const UserProfileSchema = z.object({
   UserFavoriteGenre: UserFavoriteGenreSchema,
   UserFavoriteArtist: UserFavoriteArtistSchema,
   Event: EventSchema,
+  Blog: BlogSchema,
 });
 
 export const UserProfileUpdateSchema = z.object({

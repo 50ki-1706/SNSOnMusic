@@ -23,6 +23,9 @@ export const getProfile = async (userId: string): Promise<UserProfile> => {
       Event: {
         select: { id: true, title: true },
       },
+      Blog: {
+        select: { id: true, title: true },
+      },
     },
   });
 
