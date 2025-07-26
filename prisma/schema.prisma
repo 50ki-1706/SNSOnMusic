@@ -70,11 +70,6 @@ enum MusicGenre {
   OTHER
 }
 
-enum MatchingStatus {
-  PENDING
-  LIKED
-  REJECTED
-}
 
 model User {
   id            String          @id @default(cuid())
@@ -97,8 +92,6 @@ model User {
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
   Event     Event[]
-  Matching  Matching[] @relation("SentMatchings")
-  Matching2 Matching[] @relation("ReceivedMatchings")
 
   ChatRoomParticipant ChatRoomParticipant[]
   Message             Message[]
@@ -224,18 +217,7 @@ model UserFavoriteArtist {
   @@id([userId, artist])
 }
 
-model Matching {
-  senderId       String
-  receiverId     String
-  matchingStatus MatchingStatus @default(PENDING)
-  createdAt      DateTime       @default(now())
-  updatedAt      DateTime       @updatedAt
 
-  sender   User @relation("SentMatchings", fields: [senderId], references: [id], onDelete: Cascade)
-  receiver User @relation("ReceivedMatchings", fields: [receiverId], references: [id], onDelete: Cascade)
-
-  @@id([senderId, receiverId])
-}
 
 // DMルーム本体
 model ChatRoom {
