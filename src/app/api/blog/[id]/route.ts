@@ -1,7 +1,7 @@
 import { prisma } from '@/lib/prisma';
 import { NextRequest, NextResponse } from 'next/server';
 import { userIdInApi } from '../../(lib)/userIdInApi';
-import { findBlog, getSpecificBlog, updateBlog } from '../../(Repository)/blog';
+import { deleteBlog, findBlog, getSpecificBlog, updateBlog } from '../../(Repository)/blog';
 
 export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
   try {
@@ -70,6 +70,8 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
         { status: 403 },
       );
     }
+
+    await deleteBlog(userId);
 
     return NextResponse.json(null, { status: 204 });
   } catch (error) {

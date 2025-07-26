@@ -56,6 +56,18 @@ export const getSpecificBlog = async (blogId: string) => {
   return blog;
 };
 
+export const createBlog = async (userId: string, title: string, content: string) => {
+  const blog = await prisma.blog.create({
+    data: {
+      title,
+      content,
+      userId,
+    },
+  });
+
+  return blog;
+};
+
 export const findBlog = async (blogId: string) => {
   const blog = await prisma.blog.findUnique({
     where: { id: blogId },
@@ -108,13 +120,15 @@ export const deleteBlogLike = async (blogId: string, userId: string) => {
 
 export const createComment = async (blogId: string, userId: string, content: string) => {
   // ブログコメントを作成
-  await prisma.blogComment.create({
+  const newComment = await prisma.blogComment.create({
     data: {
       blogId,
       userId,
       content,
     },
   });
+
+  return newComment;
 };
 
 export const findComment = async (commentId: string) => {
