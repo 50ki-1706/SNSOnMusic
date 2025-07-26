@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { userIdInApi } from '../../(lib)/userIdInApi';
-import { getDMRoomList } from '../../(Repository)/dm';
+import { getDMRoomList } from '../../(Repository)/chat';
 
 export async function GET() {
   try {

@@ -1,4 +1,4 @@
-import { findDMRoom, getDMRoomWithMessages } from '@/app/api/(Repository)/dm';
+import { findDMRoom, getDMRoomWithMessages } from '@/app/api/(Repository)/chat';
 import {
   createMessage,
   deleteMessage,

@@ -1,5 +1,5 @@
 import { prisma } from '@/lib/prisma';
-import { DmRoomList } from '../(type)/dm';
+import { DmRoomList } from '../(type)/chat';
 import { DmRoomWithMessages } from '../(type)/message';
 
 /**
