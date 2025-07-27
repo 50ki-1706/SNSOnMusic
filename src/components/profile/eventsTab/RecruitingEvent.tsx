@@ -1,7 +1,18 @@
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Calendar, MapPin } from 'lucide-react';
 
-const RecruitingEvent = () => {
+type RecruitingEventProps = {
+  recruitingEvents: {
+    id: number;
+    name: string;
+    date: string;
+    location: string;
+    needed: number;
+    current: number;
+  }[];
+};
+
+const RecruitingEvent = ({ recruitingEvents }: RecruitingEventProps) => {
   return (
     <Card>
       <CardHeader>

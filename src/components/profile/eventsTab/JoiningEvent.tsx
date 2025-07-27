@@ -1,6 +1,17 @@
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { Calendar, MapPin } from 'lucide-react';
 
-const JoiningEvent = () => {
+type JoiningEventProps = {
+  participatingEvents: {
+    id: number;
+    name: string;
+    date: string;
+    location: string;
+    organizer: string;
+  }[];
+};
+
+const JoiningEvent = ({ participatingEvents }: JoiningEventProps) => {
   return (
     <Card>
       <CardHeader>

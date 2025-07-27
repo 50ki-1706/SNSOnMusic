@@ -35,8 +35,8 @@ export const EventsTab = () => {
 
   return (
     <div className='space-y-6'>
-      <RecruitingEvent />
-      <JoiningEvent />
+      <RecruitingEvent recruitingEvents={recruitingEvents} />
+      <JoiningEvent participatingEvents={participatingEvents} />
     </div>
   );
 };
