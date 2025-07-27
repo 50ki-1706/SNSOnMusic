@@ -1,7 +1,15 @@
 import { Card, CardContent } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
 
-const BioArea = () => {
+const BioArea = ({
+  profileText,
+  setProfileText,
+  isEditing,
+}: {
+  profileText: string;
+  setProfileText: (value: string) => void;
+  isEditing: boolean;
+}) => {
   return (
     <Card>
       <CardContent className='pt-6'>

@@ -3,8 +3,9 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Heart, MessageCircle } from 'lucide-react';
+import { blogPostsType } from '../blogTab';
 
-const BlogArea = () => {
+const BlogArea = ({ blogPosts }: { blogPosts: blogPostsType[] }) => {
   return (
     <>
       {blogPosts.map((post) => (

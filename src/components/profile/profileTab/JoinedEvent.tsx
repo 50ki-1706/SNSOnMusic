@@ -1,7 +1,11 @@
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
-import { Calendar, MapPin, Users } from 'lucide-react';
 
-const JoinedEvent = () => {
+type JoinedEventProps = {
+  pastEvents: { date: string; name: string }[];
+  isEditing: boolean;
+};
+
+const JoinedEvent = ({ pastEvents, isEditing }: JoinedEventProps) => {
   return (
     <Card>
       <CardHeader>
@@ -10,24 +14,9 @@ const JoinedEvent = () => {
       <CardContent>
         <div className='space-y-4'>
           {pastEvents.map((event) => (
-            <div key={event.id} className='flex items-center justify-between rounded-lg border p-4'>
-              <div>
-                <h4 className='font-medium'>{event.name}</h4>
-                <div className='mt-1 flex items-center gap-4 text-sm text-gray-600'>
-                  <span className='flex items-center'>
-                    <Calendar className='mr-1 h-4 w-4' />
-                    {event.date}
-                  </span>
-                  <span className='flex items-center'>
-                    <MapPin className='mr-1 h-4 w-4' />
-                    {event.location}
-                  </span>
-                  <span className='flex items-center'>
-                    <Users className='mr-1 h-4 w-4' />
-                    {event.participants}人参加
-                  </span>
-                </div>
-              </div>
+            <div key={event.date}>
+              <h1 className='font-semibold'>{event.name}</h1>
+              <p className='text-sm text-muted-foreground'>{event.date}</p>
             </div>
           ))}
         </div>

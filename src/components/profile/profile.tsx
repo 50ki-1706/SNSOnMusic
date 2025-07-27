@@ -11,9 +11,17 @@ import { ProfileTabs } from './tabs';
 import UpperTabs from './upperTabs';
 import UserIcon from './userIcon';
 
+const PAGE_NAMES = ['profile', 'events', 'blog'] as const;
+
+type PageType = (typeof PAGE_NAMES)[number];
+
+const isPageType = (value: string): value is PageType => {
+  return (PAGE_NAMES as readonly string[]).includes(value);
+};
+
 const ProfilePage = ({ profileData }: { profileData: UserProfile }) => {
   const { id, name, image } = profileData;
-  const [activeTab, setActiveTab] = useState<'profile' | 'events' | 'blog'>('profile');
+  const [activeTab, setActiveTab] = useState<PageType>('profile');
   const [isEditing, setIsEditing] = useState(false);
   const [userImage, setUserImage] = useState(image || '/placeholder.svg?height=128&width=128');
   const [userName, setUserName] = useState(name || 'unknown');
@@ -32,7 +40,11 @@ const ProfilePage = ({ profileData }: { profileData: UserProfile }) => {
         />
         <Tabs
           value={activeTab}
-          onValueChange={(value) => setActiveTab(value as 'profile' | 'events' | 'blog')}
+          onValueChange={(value: string) => {
+            if (isPageType(value)) {
+              setActiveTab(value);
+            }
+          }}
           className='w-full'
         >
           <ProfileTabs />

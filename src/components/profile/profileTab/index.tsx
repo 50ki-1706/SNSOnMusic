@@ -1,6 +1,7 @@
 'use client';
 
 import { UserProfile } from '@/lib/types/profile';
+import { MusicGenre } from '@prisma/client';
 import { useState } from 'react';
 import BioArea from './BioArea';
 import JoinedEvent from './JoinedEvent';
@@ -11,22 +12,34 @@ type ProfileTabProps = {
   isEditing: boolean;
 };
 
+type newTagType = MusicGenre | string;
+
 export const ProfileTab = ({ profileData, isEditing }: ProfileTabProps) => {
   const { bio, UserFavoriteGenre, UserFavoriteArtist } = profileData;
-  const [genres, setGenres] = useState(UserFavoriteGenre.map((g) => g.name) || []);
-  const [artists, setArtists] = useState(UserFavoriteArtist.map((a) => a.name) || []);
-  const [newTag, setNewTag] = useState('');
+  const [genres, setGenres] = useState<MusicGenre[]>(UserFavoriteGenre);
+  const [artists, setArtists] = useState(UserFavoriteArtist);
+  const [newTag, setNewTag] = useState<newTagType>('');
   const [profileText, setProfileText] = useState(bio || 'よろしくお願いします');
+  const [pastEvents, setPastEvents] = useState<{ date: string; name: string }[]>([]);
 
-  const addTag = (type: 'genre' | 'artist') => {
-    if (newTag.trim()) {
-      if (type === 'genre') {
-        setGenres([...genres, newTag.trim()]);
-      } else {
-        setArtists([...artists, newTag.trim()]);
+  const newTagTrim = (value: string) => {
+    return value.trim();
+  };
+
+  const validGenre = (value: string): value is MusicGenre => {
+    return (Object.values(MusicGenre) as readonly string[]).includes(value);
+  };
+
+  const addTag = (type: 'genre' | 'artist', value: newTagType) => {
+    const newTag = newTagTrim(value);
+    if (type === 'genre') {
+      if (validGenre(newTag)) {
+        setGenres([...genres, newTag]);
       }
-      setNewTag('');
+    } else {
+      setArtists([...artists, newTag]);
     }
+    setNewTag('');
   };
 
   const removeTag = (type: 'genre' | 'artist', index: number) => {
@@ -37,35 +50,19 @@ export const ProfileTab = ({ profileData, isEditing }: ProfileTabProps) => {
     }
   };
 
-  const pastEvents = [
-    {
-      id: 1,
-      name: 'Summer Music Festival 2024',
-      date: '2024-07-15',
-      location: '東京ドーム',
-      participants: 120,
-    },
-    {
-      id: 2,
-      name: 'Jazz Night Session',
-      date: '2024-06-20',
-      location: 'Blue Note Tokyo',
-      participants: 45,
-    },
-    {
-      id: 3,
-      name: 'Acoustic Live',
-      date: '2024-05-10',
-      location: '渋谷クラブクアトロ',
-      participants: 80,
-    },
-  ];
-
   return (
     <div className='space-y-6'>
-      <BioArea />
-      <TagsArea />
-      <JoinedEvent pastEvents={pastEvents} />
+      <BioArea profileText={profileText} setProfileText={setProfileText} isEditing={isEditing} />
+      <TagsArea
+        genres={genres}
+        artists={artists}
+        newTag={newTag}
+        setNewTag={setNewTag}
+        isEditing={isEditing}
+        addTag={addTag}
+        removeTag={removeTag}
+      />
+      <JoinedEvent pastEvents={pastEvents} isEditing={isEditing} />
     </div>
   );
 };

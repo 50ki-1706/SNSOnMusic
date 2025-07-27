@@ -3,8 +3,16 @@
 import BlogArea from './BlogArea';
 import PostArea from './PostArea';
 
+export type blogPostsType = {
+  id: number;
+  content: string;
+  timestamp: string;
+  likes: number;
+  comments: { user: string; content: string; timestamp: string }[];
+};
+
 export const BlogTab = () => {
-  const blogPosts = [
+  const blogPosts: blogPostsType[] = [
     {
       id: 1,
       content:

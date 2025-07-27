@@ -2,9 +2,28 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import { MusicGenre } from '@prisma/client';
 import { Music, Plus } from 'lucide-react';
 
-const TagsArea = () => {
+interface TagsAreaProps {
+  genres: MusicGenre[];
+  artists: string[];
+  newTag: string;
+  setNewTag: (value: string) => void;
+  isEditing: boolean;
+  addTag: (type: 'genre' | 'artist', value: string) => void;
+  removeTag: (type: 'genre' | 'artist', index: number) => void;
+}
+
+const TagsArea = ({
+  genres,
+  artists,
+  newTag,
+  setNewTag,
+  isEditing,
+  addTag,
+  removeTag,
+}: TagsAreaProps) => {
   return (
     <Card>
       <CardHeader>
@@ -17,7 +36,7 @@ const TagsArea = () => {
         <div>
           <h4 className='mb-2 font-medium'>ジャンル</h4>
           <div className='mb-2 flex flex-wrap gap-2'>
-            {genres.map((genre, index) => (
+            {genres.map((genre: MusicGenre, index: number) => (
               <Badge
                 key={index}
                 variant='secondary'
@@ -34,10 +53,12 @@ const TagsArea = () => {
               <Input
                 placeholder='新しいジャンルを追加'
                 value={newTag}
-                onChange={(e) => setNewTag(e.target.value)}
-                onKeyPress={(e) => e.key === 'Enter' && addTag('genre')}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNewTag(e.target.value)}
+                onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) =>
+                  e.key === 'Enter' && addTag('genre', newTag)
+                }
               />
-              <Button onClick={() => addTag('genre')} size='sm'>
+              <Button onClick={() => addTag('genre', newTag)} size='sm'>
                 <Plus className='h-4 w-4' />
               </Button>
             </div>
@@ -47,7 +68,7 @@ const TagsArea = () => {
         <div>
           <h4 className='mb-2 font-medium'>アーティスト</h4>
           <div className='mb-2 flex flex-wrap gap-2'>
-            {artists.map((artist, index) => (
+            {artists.map((artist: string, index: number) => (
               <Badge
                 key={index}
                 variant='outline'
@@ -63,10 +84,12 @@ const TagsArea = () => {
               <Input
                 placeholder='新しいアーティストを追加'
                 value={newTag}
-                onChange={(e) => setNewTag(e.target.value)}
-                onKeyPress={(e) => e.key === 'Enter' && addTag('artist')}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNewTag(e.target.value)}
+                onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) =>
+                  e.key === 'Enter' && addTag('artist', newTag)
+                }
               />
-              <Button onClick={() => addTag('artist')} size='sm'>
+              <Button onClick={() => addTag('artist', newTag)} size='sm'>
                 <Plus className='h-4 w-4' />
               </Button>
             </div>
