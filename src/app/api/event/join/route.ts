@@ -1,13 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { userIdInApi } from '../../(lib)/userIdInApi';
 import { joinEvent } from '../../(Repository)/event';
+import { userIdInApi } from '../../(lib)/userIdInApi';
 
 export async function POST(request: NextRequest) {
   try {
+    const { eventId } = await request.json();
     const userId = await userIdInApi();
-    const { eventId, feedback } = await request.json();
 
-    await joinEvent(userId, eventId, feedback);
+    await joinEvent(userId, eventId, null);
 
     return NextResponse.json({ message: 'Successfully joined the event' }, { status: 204 });
   } catch (error) {

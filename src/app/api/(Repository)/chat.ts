@@ -1,22 +1,22 @@
 import { prisma } from '@/lib/prisma';
-import { DmRoomList } from '../(type)/dm';
-import { DmRoomWithMessages } from '../(type)/message';
+import { DmRoomList } from '../(type)/chat';
+import { ChatRoomWithMessages } from '../(type)/message';
 
 /**
  * 2人のユーザーIDでDMルームを作成し、参加者として両者を登録する
  * @param senderId 1人目のユーザーID
  * @param receiverId 2人目のユーザーID
  */
-export const createDMRoomWithParticipants = async (
+export const createChatRoomWithParticipants = async (
   senderId: string,
   userId2: string,
 ): Promise<void> => {
   await prisma.$transaction(async (tx) => {
-    const room = await tx.dMRoom.create({
+    const room = await tx.chatRoom.create({
       data: {},
     });
 
-    await tx.dMRoomParticipant.createMany({
+    await tx.chatRoomParticipant.createMany({
       data: [
         { roomId: room.id, userId: senderId },
         { roomId: room.id, userId: userId2 },
@@ -25,8 +25,8 @@ export const createDMRoomWithParticipants = async (
   });
 };
 
-export const getDMRoomWithMessages = async (id: string): Promise<DmRoomWithMessages | null> => {
-  const dmRoom = await prisma.dMRoom.findUnique({
+export const getChatRoomWithMessages = async (id: string): Promise<ChatRoomWithMessages | null> => {
+  const dmRoom = await prisma.chatRoom.findUnique({
     where: { id },
     select: {
       id: true,
@@ -74,9 +74,9 @@ export const getDMRoomWithMessages = async (id: string): Promise<DmRoomWithMessa
   };
 };
 
-export const findDMRoom = async (roomId: string) => {
+export const findChatRoom = async (roomId: string) => {
   // DMルームの存在確認と参加者チェック
-  const dmRoom = await prisma.dMRoom.findUnique({
+  const dmRoom = await prisma.chatRoom.findUnique({
     where: { id: roomId },
     include: {
       participants: true,
@@ -86,8 +86,8 @@ export const findDMRoom = async (roomId: string) => {
   return dmRoom;
 };
 
-export const getDMRoomList = async (userId: string): Promise<DmRoomList> => {
-  const dmRooms = await prisma.dMRoom.findMany({
+export const getChatRoomList = async (userId: string): Promise<DmRoomList> => {
+  const dmRooms = await prisma.chatRoom.findMany({
     where: {
       participants: {
         some: {

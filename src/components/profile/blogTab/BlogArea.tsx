@@ -12,7 +12,7 @@ const BlogArea = ({ blogPosts }: { blogPosts: blogPostsType[] }) => {
         <Card key={post.id}>
           <CardContent className='pt-6'>
             <div className='flex items-start gap-3'>
-              <Avatar className='h-10 w-10'>
+              <Avatar className='size-10'>
                 <AvatarImage src='/placeholder.svg?height=40&width=40' />
                 <AvatarFallback>YT</AvatarFallback>
               </Avatar>
@@ -25,11 +25,11 @@ const BlogArea = ({ blogPosts }: { blogPosts: blogPostsType[] }) => {
 
                 <div className='mb-4 flex items-center gap-4'>
                   <Button variant='ghost' size='sm' className='text-gray-600'>
-                    <Heart className='mr-1 h-4 w-4' />
+                    <Heart className='mr-1 size-4' />
                     {post.likes}
                   </Button>
                   <Button variant='ghost' size='sm' className='text-gray-600'>
-                    <MessageCircle className='mr-1 h-4 w-4' />
+                    <MessageCircle className='mr-1 size-4' />
                     {post.comments.length}
                   </Button>
                 </div>
@@ -37,7 +37,7 @@ const BlogArea = ({ blogPosts }: { blogPosts: blogPostsType[] }) => {
                 <div className='space-y-3'>
                   {post.comments.map((comment, index) => (
                     <div key={index} className='flex items-start gap-2'>
-                      <Avatar className='h-8 w-8'>
+                      <Avatar className='size-8'>
                         <AvatarImage src='/placeholder.svg?height=32&width=32' />
                         <AvatarFallback>{comment.user[0]}</AvatarFallback>
                       </Avatar>
@@ -52,7 +52,7 @@ const BlogArea = ({ blogPosts }: { blogPosts: blogPostsType[] }) => {
                   ))}
 
                   <div className='mt-3 flex items-center gap-2'>
-                    <Avatar className='h-8 w-8'>
+                    <Avatar className='size-8'>
                       <AvatarImage src='/placeholder.svg?height=32&width=32' />
                       <AvatarFallback>YT</AvatarFallback>
                     </Avatar>

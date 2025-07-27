@@ -4,11 +4,22 @@ import { Message, User } from '@/lib/types/chat';
 import Image from 'next/image';
 import { useParams } from 'next/navigation';
 import { useState } from 'react';
-const Chat = ({ userId }: { userId: string | undefined }) => {
-  const { id: dmId } = useParams();
+
+const Chat = ({
+  userId,
+  supabaseUrl,
+  supabaseKey,
+}: {
+  userId: string | undefined;
+  supabaseUrl: string;
+  supabaseKey: string;
+}) => {
+  const { id: chatId } = useParams();
   const { messageState, handleSendMessage, otherUser } = useChat({
-    dmId: dmId as string,
+    chatId: chatId as string,
     userId: userId,
+    supabaseUrl,
+    supabaseKey,
   });
 
   return (

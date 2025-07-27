@@ -59,7 +59,7 @@ const TagsArea = ({
                 }
               />
               <Button onClick={() => addTag('genre', newTag)} size='sm'>
-                <Plus className='h-4 w-4' />
+                <Plus className='size-4' />
               </Button>
             </div>
           )}
@@ -90,7 +90,7 @@ const TagsArea = ({
                 }
               />
               <Button onClick={() => addTag('artist', newTag)} size='sm'>
-                <Plus className='h-4 w-4' />
+                <Plus className='size-4' />
               </Button>
             </div>
           )}

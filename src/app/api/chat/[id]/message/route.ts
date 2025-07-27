@@ -1,4 +1,4 @@
-import { findDMRoom, getDMRoomWithMessages } from '@/app/api/(Repository)/dm';
+import { findChatRoom, getChatRoomWithMessages } from '@/app/api/(Repository)/chat';
 import {
   createMessage,
   deleteMessage,
@@ -8,12 +8,12 @@ import {
 import { NextRequest, NextResponse } from 'next/server';
 import { userIdInApi } from '../../../(lib)/userIdInApi';
 
-export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const userId = await userIdInApi();
     const { id: roomId } = await params;
 
-    const dmRoom = await getDMRoomWithMessages(roomId);
+    const dmRoom = await getChatRoomWithMessages(roomId);
 
     if (!dmRoom) {
       return NextResponse.json({ message: 'DM room not found' }, { status: 404 });
@@ -34,13 +34,13 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
   }
 }
 
-export async function POST(request: NextRequest, { params }: { params: { id: string } }) {
+export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const senderId = await userIdInApi();
     const { id: roomId } = await params;
     const { content } = await request.json();
 
-    const dmRoom = await findDMRoom(roomId);
+    const dmRoom = await findChatRoom(roomId);
 
     if (!dmRoom) {
       return NextResponse.json({ message: 'DM room not found' }, { status: 404 });
@@ -61,7 +61,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
   }
 }
 
-export async function PATCH(request: NextRequest) {
+export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const userId = await userIdInApi();
     const { messageId, content } = await request.json();
@@ -83,7 +83,10 @@ export async function PATCH(request: NextRequest) {
   }
 }
 
-export async function DELETE(request: NextRequest) {
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> },
+) {
   try {
     const userId = await userIdInApi();
     const { messageId } = await request.json();

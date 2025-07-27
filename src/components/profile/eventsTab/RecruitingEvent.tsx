@@ -27,11 +27,11 @@ const RecruitingEvent = ({ recruitingEvents }: RecruitingEventProps) => {
               <h4 className='font-medium'>{event.name}</h4>
               <div className='mt-2 flex items-center gap-4 text-sm text-gray-600'>
                 <span className='flex items-center'>
-                  <Calendar className='mr-1 h-4 w-4' />
+                  <Calendar className='mr-1 size-4' />
                   {event.date}
                 </span>
                 <span className='flex items-center'>
-                  <MapPin className='mr-1 h-4 w-4' />
+                  <MapPin className='mr-1 size-4' />
                   {event.location}
                 </span>
               </div>
